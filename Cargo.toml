@@ -1,0 +1,12 @@
+[package]
+authors = ["Cyril Plisko <cyril.plisko@mountall.com>"]
+description = "Helps pipe your output through an external pager"
+repository = "https://gitlab.com/imp/pager-rs.git"
+keywords = ["pager", "less", "more"]
+license = "Apache-2.0/MIT"
+homepage = "https://gitlab.com/imp/pager-rs"
+name = "pager"
+version = "0.1.0"
+
+[dependencies]
+libc = "0.2"
