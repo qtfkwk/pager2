@@ -1,9 +1,9 @@
-## Pager - your long output best friend
+## Pager - long output best friend
 
 Does all the magic to have you potentially long output piped through the
 external pager. Similar to what `git` does for its output.
 
-Quick Start
+# Quick Start
 
 ```
 extern crate pager;
