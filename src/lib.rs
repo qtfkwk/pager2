@@ -97,10 +97,13 @@ impl Pager {
 
 // In C this would be simple getenv(). Not in Rust though
 fn getenv(var: &str) -> Option<CString> {
-    let value = env::var_os(&var).unwrap();
-    let value = value.as_os_str().as_bytes();
-    let value = CString::new(value);
-    value.ok()
+    if let Some(value) = env::var_os(var) {
+        let value = value.as_os_str().as_bytes();
+        let value = CString::new(value);
+        value.ok()
+    } else {
+        None
+    }
     // let to_bytes = |x: &OsString| x.as_os_str().as_bytes();
     // let to_bytes = |x: &OsString| x.into::<Vec<u8>>();
     // env::var_os(&self.env).map(to_bytes).and_then(|x| CString::new(x).ok())
