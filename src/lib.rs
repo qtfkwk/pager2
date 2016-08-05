@@ -5,7 +5,7 @@
 //!
 //! ```
 //! extern crate pager;
-//!
+//! use pager::Pager;
 //! fn main() {
 //!     Pager::new().setup();
 //!     // The rest of your program goes here
@@ -21,7 +21,7 @@
 //!
 //! ```
 //! extern crate pager;
-//!
+//! use pager::Pager;
 //! fn main() {
 //!     Pager::new().env("MY_PAGER").setup();
 //!     // The rest of your program goes here
