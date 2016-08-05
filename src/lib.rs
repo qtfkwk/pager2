@@ -23,7 +23,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     Pager::new().env("MY_PAGER").setup();
+//!     Pager::env("MY_PAGER").setup();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -56,9 +56,11 @@ impl Pager {
         }
     }
 
-    pub fn env(&mut self, env: &str) -> &Self {
-        self.env = String::from(env);
-        self
+    pub fn env(env: &str) -> Self {
+        Pager {
+            env: String::from(env),
+            ok: true,
+        }
     }
 
     pub fn ok(&self) -> bool {
