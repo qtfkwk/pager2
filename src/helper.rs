@@ -1,6 +1,6 @@
 use std::env;
 use std::ffi::CString;
-use std::os::unix::ffi::OsStrExt;
+use std::os::unix::ffi::{OsStrExt, OsStringExt};
 use std::path::PathBuf;
 
 use libc;
@@ -56,10 +56,9 @@ fn which(exec: &str) -> Option<PathBuf> {
 }
 
 pub fn default_pager() -> Option<CString> {
-    // let pathbuf2cstring = |p: PathBuf| CString::new(p.as_os_str().as_bytes()).ok();
-    let str2cstring = |x: &str| CString::new(x).ok();
-    let pathbuf2cstring = |p: PathBuf| p.to_str().and_then(str2cstring);
-    which("more").and_then(pathbuf2cstring)
+    which("more")
+        .map(|p| p.into_os_string().into_vec())
+        .and_then(|s| CString::new(s).ok())
 }
 
 #[cfg(test)]
