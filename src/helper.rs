@@ -1,6 +1,7 @@
 use std::env;
 use std::ffi::CString;
 use std::os::unix::ffi::OsStrExt;
+use std::path::PathBuf;
 
 use libc;
 
@@ -41,37 +42,50 @@ pub fn pipe() -> (i32, i32) {
     (fds[0], fds[1])
 }
 
-fn found_in_path(exec: &str) -> bool {
+fn which(exec: &str) -> Option<PathBuf> {
     if let Some(path) = env::var_os("PATH") {
         let paths = env::split_paths(&path);
         for path in paths {
+            let candidate = path.join(exec);
             if path.join(exec).exists() {
-                return true;
+                return Some(candidate);
             }
         }
     }
-    false
+    None
 }
 
 pub fn default_pager() -> Option<CString> {
-    if found_in_path("more") {
-        CString::new("more").ok()
-    } else {
-        None
-    }
+    // let pathbuf2cstring = |p: PathBuf| CString::new(p.as_os_str().as_bytes()).ok();
+    let str2cstring = |x: &str| CString::new(x).ok();
+    let pathbuf2cstring = |p: PathBuf| p.to_str().and_then(str2cstring);
+    which("more").and_then(pathbuf2cstring)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::found_in_path;
+    use super::{default_pager, which};
+    use std::ffi::CString;
+    use std::path::PathBuf;
 
     #[test]
-    fn ls_found_in_path() {
-        assert!(found_in_path("ls"))
+    fn more_found_in_path() {
+        assert!(which("more").is_some())
     }
 
     #[test]
-    fn ls123_not_found_in_path() {
-        assert!(!found_in_path("ls123"))
+    fn erom_not_found_in_path() {
+        assert!(which("erom").is_none())
+    }
+
+    #[test]
+    fn which_more() {
+        assert_eq!(which("more"), Some(PathBuf::from("/usr/bin/more")));
+    }
+
+    #[test]
+    fn usr_bin_more_default_pager() {
+        let usr_bin_more = CString::new("/usr/bin/more").unwrap();
+        assert_eq!(default_pager(), Some(usr_bin_more));
     }
 }
