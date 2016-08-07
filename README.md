@@ -18,7 +18,10 @@ fn main() {
 
 Under the hood this forks the current process, connects child' stdout
 to parent's stdin, and then replaces the parent with the pager of choice
-(environment variable PAGER). The child just continues as normal.
+(environment variable PAGER). The child just continues as normal. If PAGER
+environment variable is not present `Pager` probes current PATH for `more`.
+If found it is used as a default pager.
+
 You can control pager to a limited degree. For example you can change the
 environment variable used for finding pager executable.
 
