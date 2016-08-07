@@ -42,7 +42,7 @@ pub fn pipe() -> (i32, i32) {
     (fds[0], fds[1])
 }
 
-pub fn found_in_path(exec: &str) -> bool {
+fn found_in_path(exec: &str) -> bool {
     if let Some(path) = env::var_os("PATH") {
         let paths = env::split_paths(&path);
         for path in paths {
@@ -54,9 +54,17 @@ pub fn found_in_path(exec: &str) -> bool {
     false
 }
 
+pub fn default_pager() -> Option<CString> {
+    if found_in_path("more") {
+        CString::new("more").ok()
+    } else {
+        None
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::found_in_path;
 
     #[test]
     fn ls_found_in_path() {

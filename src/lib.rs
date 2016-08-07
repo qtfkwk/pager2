@@ -35,11 +35,12 @@
 
 extern crate libc;
 
+use std::ffi::CString;
 use std::ptr;
 
 mod helper;
 
-use helper::{getenv, fork, close, dup2, execvp, pipe};
+use helper::{getenv, fork, close, dup2, execvp, pipe, default_pager};
 
 const DEFAULT_PAGER_ENV: &'static str = "PAGER";
 
@@ -69,7 +70,7 @@ impl Pager {
     }
 
     pub fn setup(&mut self) {
-        if let Some(pager) = getenv(&self.env) {
+        if let Some(pager) = self.get_pager() {
             let (pager_stdin, main_stdout) = pipe();
             let pid = fork();
             match pid {
@@ -93,5 +94,9 @@ impl Pager {
                 }
             }
         }
+    }
+
+    fn get_pager(&self) -> Option<CString> {
+        getenv(&self.env).or_else(default_pager)
     }
 }
