@@ -8,8 +8,7 @@ use libc;
 pub fn getenv(var: &str) -> Option<CString> {
     if let Some(value) = env::var_os(var) {
         let value = value.as_os_str().as_bytes();
-        let value = CString::new(value);
-        value.ok()
+        CString::new(value).ok()
     } else {
         None
     }
