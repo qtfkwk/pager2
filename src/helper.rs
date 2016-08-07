@@ -67,6 +67,12 @@ mod tests {
     use std::ffi::CString;
     use std::path::PathBuf;
 
+#[cfg(target_os = "linux")]
+const MORE: &'static str = "/bin/more";
+
+#[cfg(target_os = "macos")]
+const MORE: &'static str = "/usr/bin/more";
+
     #[test]
     fn more_found_in_path() {
         assert!(which("more").is_some())
@@ -79,12 +85,12 @@ mod tests {
 
     #[test]
     fn which_more() {
-        assert_eq!(which("more"), Some(PathBuf::from("/usr/bin/more")));
+        assert_eq!(which("more"), Some(PathBuf::from(MORE)));
     }
 
     #[test]
     fn usr_bin_more_default_pager() {
-        let usr_bin_more = CString::new("/usr/bin/more").unwrap();
-        assert_eq!(default_pager(), Some(usr_bin_more));
+        let more = CString::new(MORE).unwrap();
+        assert_eq!(default_pager(), Some(more));
     }
 }
