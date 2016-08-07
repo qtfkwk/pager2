@@ -41,3 +41,30 @@ pub fn pipe() -> (i32, i32) {
     assert_eq!(unsafe { libc::pipe(fds.as_mut_ptr()) }, 0);
     (fds[0], fds[1])
 }
+
+pub fn found_in_path(exec: &str) -> bool {
+    if let Some(path) = env::var_os("PATH") {
+        let paths = env::split_paths(&path);
+        for path in paths {
+            if path.join(exec).exists() {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ls_found_in_path() {
+        assert!(found_in_path("ls"))
+    }
+
+    #[test]
+    fn ls123_not_found_in_path() {
+        assert!(!found_in_path("ls123"))
+    }
+}
