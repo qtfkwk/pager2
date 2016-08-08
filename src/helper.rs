@@ -1,31 +1,26 @@
 use std::env;
-use std::ffi::CString;
-use std::os::unix::ffi::{OsStrExt, OsStringExt};
-use std::path::PathBuf;
+use std::ffi::{CString, OsString};
+use std::os::unix::ffi::OsStringExt;
+use std::ptr;
 
 use libc;
 
-// In C this would be simple getenv(). Not in Rust though
-pub fn getenv(var: &str) -> Option<CString> {
-    if let Some(value) = env::var_os(var) {
-        let value = value.as_os_str().as_bytes();
-        CString::new(value).ok()
-    } else {
-        None
-    }
-    // let to_bytes = |x: &OsString| x.as_os_str().as_bytes();
-    // let to_bytes = |x: &OsString| x.into::<Vec<u8>>();
-    // env::var_os(&self.env).map(to_bytes).and_then(|x| CString::new(x).ok())
+fn osstring2cstring(s: &OsString) -> CString {
+    unsafe { CString::from_vec_unchecked(s.clone().into_vec()) }
 }
-
 
 // Helper wrappers around libc::* API
 pub fn fork() -> libc::pid_t {
     unsafe { libc::fork() }
 }
 
-pub fn execvp(argv: Vec<*const libc::c_char>) {
-    assert!(unsafe { libc::execvp(argv[0], argv.as_ptr()) } > -1);
+pub fn execvp(argv: Vec<&OsString>) {
+    let mut args = Vec::new();
+    for arg in &argv {
+        args.push(osstring2cstring(arg).as_ptr());
+    }
+    args.push(ptr::null());
+    assert!(unsafe { libc::execvp(args[0], args.as_ptr()) } > -1);
 }
 
 pub fn dup2(fd1: i32, fd2: i32) {
@@ -42,30 +37,28 @@ pub fn pipe() -> (i32, i32) {
     (fds[0], fds[1])
 }
 
-fn which(exec: &str) -> Option<PathBuf> {
+fn which(exec: &str) -> Option<OsString> {
     if let Some(path) = env::var_os("PATH") {
         let paths = env::split_paths(&path);
         for path in paths {
             let candidate = path.join(exec);
             if path.join(exec).exists() {
-                return Some(candidate);
+                return Some(candidate.into_os_string());
             }
         }
     }
     None
 }
 
-pub fn default_pager() -> Option<CString> {
-    which("more")
-        .map(|p| p.into_os_string().into_vec())
-        .and_then(|s| CString::new(s).ok())
+pub fn find_pager(env: &str) -> Option<OsString> {
+    let default_pager = || which("more");
+    env::var_os(env).or_else(default_pager)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{default_pager, which};
-    use std::ffi::CString;
-    use std::path::PathBuf;
+    use super::{find_pager, which};
+    use std::ffi::OsString;
 
 #[cfg(target_os = "linux")]
 const MORE: &'static str = "/bin/more";
@@ -85,12 +78,11 @@ const MORE: &'static str = "/usr/bin/more";
 
     #[test]
     fn which_more() {
-        assert_eq!(which("more"), Some(PathBuf::from(MORE)));
+        assert_eq!(which("more"), Some(OsString::from(MORE)));
     }
 
     #[test]
     fn usr_bin_more_default_pager() {
-        let more = CString::new(MORE).unwrap();
-        assert_eq!(default_pager(), Some(more));
+        assert_eq!(find_pager("__RANDOM_NAME"), Some(OsString::from(MORE)));
     }
 }

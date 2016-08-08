@@ -37,32 +37,38 @@
 
 extern crate libc;
 
-use std::ffi::CString;
-use std::ptr;
+use std::ffi::OsString;
 
 mod helper;
 
-use helper::{getenv, fork, close, dup2, execvp, pipe, default_pager};
+use helper::{fork, close, dup2, execvp, pipe, find_pager};
 
 const DEFAULT_PAGER_ENV: &'static str = "PAGER";
 
 #[derive(Debug, Default)]
 pub struct Pager {
+    pager: Option<OsString>,
     env: String,
     ok: bool,
 }
 
 impl Pager {
     pub fn new() -> Self {
+        let pager = find_pager(DEFAULT_PAGER_ENV);
+
         Pager {
-            env: String::from(DEFAULT_PAGER_ENV),
+            pager: pager,
+            env: DEFAULT_PAGER_ENV.into(),
             ok: true,
         }
     }
 
     pub fn env(env: &str) -> Self {
+        let pager = find_pager(env);
+
         Pager {
-            env: String::from(env),
+            pager: pager,
+            env: env.into(),
             ok: true,
         }
     }
@@ -72,7 +78,7 @@ impl Pager {
     }
 
     pub fn setup(&mut self) {
-        if let Some(pager) = self.get_pager() {
+        if let Some(ref pager) = self.pager {
             let (pager_stdin, main_stdout) = pipe();
             let pid = fork();
             match pid {
@@ -89,16 +95,11 @@ impl Pager {
                 }
                 _ => {
                     // I am parent
-                    let argv = vec![pager.as_ptr(), ptr::null()];
                     dup2(pager_stdin, libc::STDIN_FILENO);
                     close(main_stdout);
-                    execvp(argv);
+                    execvp(vec![pager]);
                 }
             }
         }
-    }
-
-    fn get_pager(&self) -> Option<CString> {
-        getenv(&self.env).or_else(default_pager)
     }
 }
