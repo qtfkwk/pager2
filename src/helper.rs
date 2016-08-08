@@ -60,11 +60,11 @@ mod tests {
     use super::{find_pager, which};
     use std::ffi::OsString;
 
-#[cfg(target_os = "linux")]
-const MORE: &'static str = "/bin/more";
+    #[cfg(target_os = "linux")]
+    const MORE: &'static str = "/bin/more";
 
-#[cfg(target_os = "macos")]
-const MORE: &'static str = "/usr/bin/more";
+    #[cfg(target_os = "macos")]
+    const MORE: &'static str = "/usr/bin/more";
 
     #[test]
     fn more_found_in_path() {
