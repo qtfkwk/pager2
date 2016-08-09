@@ -5,7 +5,7 @@ external pager. Similar to what `git` does for its output.
 
 # Quick Start
 
-```
+```rust
 extern crate pager;
 
 use pager::Pager;
@@ -25,7 +25,7 @@ If found it is used as a default pager.
 You can control pager to a limited degree. For example you can change the
 environment variable used for finding pager executable.
 
-```
+```rust
 extern crate pager;
 
 use pager::Pager;
