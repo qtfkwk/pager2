@@ -36,6 +36,6 @@ fn main() {
 }
 ```
 
-If no PAGER is found `setup()` does nothing and your executable keeps
+If no suitable pager found `setup()` does nothing and your executable keeps
 running as usual. `Pager` cleans after itself and doesn't leak resources in
 case of setup failure.
