@@ -53,6 +53,7 @@ pub struct Pager {
 }
 
 impl Pager {
+    /// Creates new instance of pager with default settings
     pub fn new() -> Self {
         let pager = find_pager(DEFAULT_PAGER_ENV);
 
@@ -63,6 +64,7 @@ impl Pager {
         }
     }
 
+    /// Creates new instance of pager using `env` environment variable instead of PAGER
     pub fn env(env: &str) -> Self {
         let pager = find_pager(env);
 
@@ -73,10 +75,13 @@ impl Pager {
         }
     }
 
+    /// Gives quick assessment of successful Pager setup
     pub fn ok(&self) -> bool {
         self.ok
     }
 
+    /// Initiates Pager framework and sets up all the necessary environment for sending standard
+    /// output to the activated pager.
     pub fn setup(&mut self) {
         if let Some(ref pager) = self.pager {
             let (pager_stdin, main_stdout) = pipe();
