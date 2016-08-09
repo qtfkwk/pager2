@@ -37,11 +37,9 @@
 
 extern crate libc;
 
+mod utils;
+
 use std::ffi::OsString;
-
-mod helper;
-
-use helper::{fork, close, dup2, execvp, pipe, find_pager};
 
 const DEFAULT_PAGER_ENV: &'static str = "PAGER";
 
@@ -55,7 +53,7 @@ pub struct Pager {
 impl Pager {
     /// Creates new instance of pager with default settings
     pub fn new() -> Self {
-        let pager = find_pager(DEFAULT_PAGER_ENV);
+        let pager = utils::find_pager(DEFAULT_PAGER_ENV);
 
         Pager {
             pager: pager,
@@ -66,7 +64,7 @@ impl Pager {
 
     /// Creates new instance of pager using `env` environment variable instead of PAGER
     pub fn env(env: &str) -> Self {
-        let pager = find_pager(env);
+        let pager = utils::find_pager(env);
 
         Pager {
             pager: pager,
@@ -84,25 +82,25 @@ impl Pager {
     /// output to the activated pager.
     pub fn setup(&mut self) {
         if let Some(ref pager) = self.pager {
-            let (pager_stdin, main_stdout) = pipe();
-            let pid = fork();
+            let (pager_stdin, main_stdout) = utils::pipe();
+            let pid = utils::fork();
             match pid {
                 -1 => {
                     // Fork failed
-                    close(pager_stdin);
-                    close(main_stdout);
+                    utils::close(pager_stdin);
+                    utils::close(main_stdout);
                     self.ok = false
                 }
                 0 => {
                     // I am child
-                    dup2(main_stdout, libc::STDOUT_FILENO);
-                    close(pager_stdin);
+                    utils::dup2(main_stdout, libc::STDOUT_FILENO);
+                    utils::close(pager_stdin);
                 }
                 _ => {
                     // I am parent
-                    dup2(pager_stdin, libc::STDIN_FILENO);
-                    close(main_stdout);
-                    execvp(vec![pager]);
+                    utils::dup2(pager_stdin, libc::STDIN_FILENO);
+                    utils::close(main_stdout);
+                    utils::execvp(vec![pager]);
                 }
             }
         }
