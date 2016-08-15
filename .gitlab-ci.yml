@@ -31,7 +31,8 @@ pages:
   only:
     - doc
   script:
-    - cargo doc
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+    - . ~/.cargo/env && cargo doc
     - rm -rf public
     - mkdir public
     - cp -R target/doc/* public
