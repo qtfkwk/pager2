@@ -3,7 +3,6 @@ image: ubuntu:xenial
 before_script:
   - apt-get update
   - apt-get -y install sudo curl git file g++ cmake
-  - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
 
 stages:
   - test
@@ -12,20 +11,20 @@ stages:
 stable:
   stage: test
   script:
-    - rustup install stable
-    - cargo test --verbose
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+    - . ~/.cargo/env && cargo test --verbose
 
 beta:
   stage: test
   script:
-    - rustup install beta
-    - cargo test --verbose
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain beta
+    - . ~/.cargo/env && cargo test --verbose
 
 nightly:
   stage: test
   script:
-    - rustup install nightly
-    - cargo test --verbose
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+    - . ~/.cargo/env && cargo test --verbose
 
 pages:
   stage: deploy
