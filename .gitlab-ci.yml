@@ -29,7 +29,7 @@ nightly:
 pages:
   stage: deploy
   only:
-    - doc
+    - master
   script:
     - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
     - . ~/.cargo/env && cargo doc
