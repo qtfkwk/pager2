@@ -35,7 +35,7 @@ pages:
   only:
     - develop
   script:
-    - cargo doc
+    - . ~/.cargo/env && cargo doc
     - rm -rf public
     - mkdir public
     - cp -R target/doc/* public
