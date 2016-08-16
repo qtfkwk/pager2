@@ -11,19 +11,19 @@ stages:
 stable:
   stage: test
   script:
-    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $CI_BUILD_NAME
     - . ~/.cargo/env && cargo test --verbose
 
 beta:
   stage: test
   script:
-    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain beta
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $CI_BUILD_NAME
     - . ~/.cargo/env && cargo test --verbose
 
 nightly:
   stage: test
   script:
-    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $CI_BUILD_NAME
     - . ~/.cargo/env && cargo test --verbose
 
 pages:
