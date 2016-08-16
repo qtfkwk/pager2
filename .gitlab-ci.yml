@@ -4,6 +4,7 @@ before_script:
   - apt-get update
   - apt-get -y install sudo curl git file g++ cmake
   - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $CI_BUILD_NAME
+    - . ~/.cargo/env && rustc -V && cargo -V
 
 stages:
   - test
