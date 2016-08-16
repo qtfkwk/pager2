@@ -7,7 +7,7 @@ keywords = ["pager", "less", "more"]
 license = "Apache-2.0/MIT"
 homepage = "https://gitlab.com/imp/pager-rs"
 name = "pager"
-version = "0.2.2"
+version = "0.9.0"
 
 [dependencies]
 libc = "0.2"
