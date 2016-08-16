@@ -33,7 +33,7 @@ pages:
     - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
   stage: deploy
   only:
-    - master
+    - develop
   script:
     - cargo doc
     - rm -rf public
