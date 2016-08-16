@@ -1,7 +1,7 @@
 //! Does all the magic to have you potentially long output piped through the
 //! external pager. Similar to what git does for its output.
 //!
-//! Quick Start
+//! # Quick Start
 //!
 //! ```rust
 //! extern crate pager;
