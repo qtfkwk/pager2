@@ -26,12 +26,13 @@ nightly:
     - cargo test --verbose --jobs 1 --release
 
 pages:
+  before_script:
+    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
   stage: deploy
   only:
     - master
   script:
-    - curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
-    - . ~/.cargo/env && cargo doc
+    - cargo doc
     - rm -rf public
     - mkdir public
     - cp -R target/doc/* public
