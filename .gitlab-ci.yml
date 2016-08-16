@@ -13,17 +13,17 @@ stages:
 stable:
   stage: test
   script:
-    - . ~/.cargo/env && cargo test --verbose --jobs 1 --release
+    - cargo test --verbose --jobs 1 --release
 
 beta:
   stage: test
   script:
-    - . ~/.cargo/env && cargo test --verbose --jobs 1 --release
+    - cargo test --verbose --jobs 1 --release
 
 nightly:
   stage: test
   script:
-    - . ~/.cargo/env && cargo test --verbose --jobs 1 --release
+    - cargo test --verbose --jobs 1 --release
 
 pages:
   stage: deploy
