@@ -1,13 +1,7 @@
 ## Pager - long output best friend
 
- branch | status
-:-------|:------:
-  master| ![Build Status](https://gitlab.com/imp/pager-rs/badges/master/build.svg)
- develop| ![Build Status](https://gitlab.com/imp/pager-rs/badges/develop/build.svg)
-
-
-master ![Build Status](https://gitlab.com/imp/pager-rs/badges/master/build.svg) develop ![Build Status](https://gitlab.com/imp/pager-rs/badges/develop/build.svg)
-
+[![Build Status](https://gitlab.com/imp/pager-rs/badges/master/build.svg)](https://gitlab.com/imp/pager-rs/pipelines)
+[![Crates.io](https://img.shields.io/crates/v/pager.svg)](https://crates.io/crates/pager)
 
 Does all the magic to have you potentially long output piped through the
 external pager. Similar to what `git` does for its output.
