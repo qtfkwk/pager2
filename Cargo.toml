@@ -1,7 +1,7 @@
 [package]
 authors = ["Cyril Plisko <cyril.plisko@mountall.com>"]
 description = "Helps pipe your output through an external pager"
-documentation = "https://imp.gitlab.io/pager-rs/pager"
+documentation = "https://docs.rs/pager"
 repository = "https://gitlab.com/imp/pager-rs.git"
 keywords = ["pager", "less", "more"]
 license = "Apache-2.0/MIT"
