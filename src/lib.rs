@@ -53,13 +53,7 @@ pub struct Pager {
 impl Pager {
     /// Creates new instance of pager with default settings
     pub fn new() -> Self {
-        let pager = utils::find_pager(DEFAULT_PAGER_ENV);
-
-        Pager {
-            pager: pager,
-            env: DEFAULT_PAGER_ENV.into(),
-            ok: true,
-        }
+        Pager::env(DEFAULT_PAGER_ENV)
     }
 
     /// Creates new instance of pager using `env` environment variable instead of PAGER
