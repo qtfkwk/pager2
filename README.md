@@ -2,6 +2,7 @@
 
 [![Build Status](https://gitlab.com/imp/pager-rs/badges/master/build.svg)](https://gitlab.com/imp/pager-rs/pipelines)
 [![Crates.io](https://img.shields.io/crates/v/pager.svg)](https://crates.io/crates/pager)
+[![Docs.rs](https://docs.rs/pager/badge.svg)](https://docs.rs/pager)
 
 Does all the magic to have you potentially long output piped through the
 external pager. Similar to what `git` does for its output.
