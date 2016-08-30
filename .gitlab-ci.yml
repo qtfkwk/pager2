@@ -19,7 +19,7 @@ nightly:cargo:
   image: rustdocker/rust:nightly
   <<: *cargo_test
 
-pages:
+.pages:
   image: rustdocker/rust:stable
   stage: deploy
   only:
