@@ -43,3 +43,7 @@ fn main() {
 If no suitable pager found `setup()` does nothing and your executable keeps
 running as usual. `Pager` cleans after itself and doesn't leak resources in
 case of setup failure.
+
+If you need to disable pager altogether set environment variable `NOPAGER`
+and Pager::setup() will skip initialization. The host application will continue
+as normal. Pager::ok() will reflect the fact that no Pager is active.
