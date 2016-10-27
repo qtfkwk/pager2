@@ -15,7 +15,7 @@ pub fn fork() -> libc::pid_t {
 }
 
 pub fn execvp(argv: Vec<&OsString>) {
-    let mut args = Vec::new();
+    let mut args = Vec::with_capacity(2);
     for arg in &argv {
         args.push(osstring2cstring(arg).as_ptr());
     }
