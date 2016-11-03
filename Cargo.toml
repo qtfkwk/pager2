@@ -8,7 +8,7 @@ license = "Apache-2.0/MIT"
 name = "pager"
 readme = "README.md"
 repository = "https://gitlab.com/imp/pager-rs.git"
-version = "0.9.2"
+version = "0.9.3"
 
 [dependencies]
 libc = "0.2"
