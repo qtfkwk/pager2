@@ -3,6 +3,7 @@ use std::ffi::{CString, OsString};
 use std::os::unix::ffi::OsStringExt;
 use std::ptr;
 
+use errno;
 use libc;
 
 fn osstring2cstring(s: &OsString) -> CString {
@@ -22,12 +23,20 @@ pub fn fork() -> libc::pid_t {
 }
 
 pub fn execvp(cmd: &OsString) {
+    // println!("cmd {:?}", cmd);
     let mut args = Vec::with_capacity(2);
     for arg in split_string(cmd) {
+        // println!("arg {:?}", arg);
         args.push(osstring2cstring(&arg).as_ptr())
     }
     args.push(ptr::null());
-    assert!(unsafe { libc::execvp(args[0], args.as_ptr()) } > -1);
+    // println!("args {:?}", args);
+    errno::set_errno(errno::Errno(0));
+    // println!("errno pre {}", errno::errno());
+    // println!("Going to run execvp({:?}, {:?})", args[0], args.as_ptr());
+    unsafe { libc::execvp(args[0], args.as_ptr()) };
+    // println!("errno post {}", errno::errno());
+    assert!(false);
 }
 
 pub fn dup2(fd1: i32, fd2: i32) {

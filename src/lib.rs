@@ -38,6 +38,7 @@
 //! will skip initialization. The host application will continue as normal. `Pager::ok()` will
 //! reflect the fact that no Pager is active.
 
+extern crate errno;
 extern crate libc;
 
 mod utils;
