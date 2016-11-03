@@ -2,12 +2,12 @@
 authors = ["Cyril Plisko <cyril.plisko@mountall.com>"]
 description = "Helps pipe your output through an external pager"
 documentation = "https://docs.rs/pager"
-repository = "https://gitlab.com/imp/pager-rs.git"
+homepage = "https://gitlab.com/imp/pager-rs"
 keywords = ["pager", "less", "more"]
 license = "Apache-2.0/MIT"
-homepage = "https://gitlab.com/imp/pager-rs"
 name = "pager"
 readme = "README.md"
+repository = "https://gitlab.com/imp/pager-rs.git"
 version = "0.9.2"
 
 [dependencies]
