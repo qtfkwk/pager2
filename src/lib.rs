@@ -97,7 +97,7 @@ impl Pager {
                     // I am parent
                     utils::dup2(pager_stdin, libc::STDIN_FILENO);
                     utils::close(main_stdout);
-                    utils::execvp(vec![pager]);
+                    utils::execvp(pager);
                 }
             }
         }

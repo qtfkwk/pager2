@@ -9,15 +9,22 @@ fn osstring2cstring(s: &OsString) -> CString {
     unsafe { CString::from_vec_unchecked(s.clone().into_vec()) }
 }
 
+fn split_string(s: &OsString) -> Vec<OsString> {
+    match s.clone().into_string() {
+        Ok(cmd) => cmd.split_whitespace().map(OsString::from).collect(),
+        Err(cmd) => vec![cmd],
+    }
+}
+
 // Helper wrappers around libc::* API
 pub fn fork() -> libc::pid_t {
     unsafe { libc::fork() }
 }
 
-pub fn execvp(argv: Vec<&OsString>) {
+pub fn execvp(cmd: &OsString) {
     let mut args = Vec::with_capacity(2);
-    for arg in &argv {
-        args.push(osstring2cstring(arg).as_ptr());
+    for arg in split_string(cmd) {
+        args.push(osstring2cstring(&arg).as_ptr())
     }
     args.push(ptr::null());
     assert!(unsafe { libc::execvp(args[0], args.as_ptr()) } > -1);
