@@ -25,7 +25,6 @@ pub fn fork() -> libc::pid_t {
 pub fn execvp(cmd: &OsString) {
     let cstrings = split_string(cmd).iter().map(osstring2cstring).collect::<Vec<_>>();
     let mut args = cstrings.iter().map(|c| c.as_ptr()).collect::<Vec<_>>();
-
     args.push(ptr::null());
     errno::set_errno(errno::Errno(0));
     unsafe { libc::execvp(args[0], args.as_ptr()) };
