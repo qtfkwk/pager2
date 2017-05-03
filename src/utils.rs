@@ -6,8 +6,8 @@ use std::ptr;
 use errno;
 use libc;
 
-fn osstring2cstring(s: &OsString) -> CString {
-    unsafe { CString::from_vec_unchecked(s.clone().into_vec()) }
+fn osstring2cstring(s: OsString) -> CString {
+    unsafe { CString::from_vec_unchecked(s.into_vec()) }
 }
 
 fn split_string(s: &OsString) -> Vec<OsString> {
@@ -23,7 +23,10 @@ pub fn fork() -> libc::pid_t {
 }
 
 pub fn execvp(cmd: &OsString) {
-    let cstrings = split_string(cmd).iter().map(osstring2cstring).collect::<Vec<_>>();
+    let cstrings = split_string(cmd)
+        .into_iter()
+        .map(osstring2cstring)
+        .collect::<Vec<_>>();
     let mut args = cstrings.iter().map(|c| c.as_ptr()).collect::<Vec<_>>();
     args.push(ptr::null());
     errno::set_errno(errno::Errno(0));
