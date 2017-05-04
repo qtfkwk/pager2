@@ -46,4 +46,4 @@ case of setup failure.
 
 If you need to disable pager altogether set environment variable `NOPAGER`
 and Pager::setup() will skip initialization. The host application will continue
-as normal. Pager::ok() will reflect the fact that no Pager is active.
+as normal. Pager::is_on() will reflect the fact that no Pager is active.
