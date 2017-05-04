@@ -35,7 +35,7 @@
 //! case of setup failure.
 //!
 //! If you need to disable pager altogether set environment variable `NOPAGER` and `Pager::setup()`
-//! will skip initialization. The host application will continue as normal. `Pager::ok()` will
+//! will skip initialization. The host application will continue as normal. `Pager::is_on()` will
 //! reflect the fact that no Pager is active.
 
 extern crate errno;
@@ -51,7 +51,7 @@ const DEFAULT_PAGER_ENV: &str = "PAGER";
 pub struct Pager {
     pager: Option<OsString>,
     env: String,
-    ok: bool,
+    on: bool,
 }
 
 impl Pager {
@@ -67,13 +67,13 @@ impl Pager {
         Pager {
             pager: pager,
             env: env.into(),
-            ok: true,
+            on: true,
         }
     }
 
     /// Gives quick assessment of successful Pager setup
-    pub fn ok(&self) -> bool {
-        self.ok
+    pub fn is_on(&self) -> bool {
+        self.on
     }
 
     /// Initiates Pager framework and sets up all the necessary environment for sending standard
@@ -87,7 +87,7 @@ impl Pager {
                     // Fork failed
                     utils::close(pager_stdin);
                     utils::close(main_stdout);
-                    self.ok = false
+                    self.on = false
                 }
                 0 => {
                     // I am child
