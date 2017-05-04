@@ -11,5 +11,5 @@ repository = "https://gitlab.com/imp/pager-rs.git"
 version = "0.9.4"
 
 [dependencies]
-errno = "0.1.8"
+errno = "0.2"
 libc = "0.2"
