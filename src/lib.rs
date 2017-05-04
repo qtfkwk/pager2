@@ -45,7 +45,7 @@ mod utils;
 
 use std::ffi::OsString;
 
-const DEFAULT_PAGER_ENV: &'static str = "PAGER";
+const DEFAULT_PAGER_ENV: &str = "PAGER";
 
 #[derive(Debug, Default)]
 pub struct Pager {
