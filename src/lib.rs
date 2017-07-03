@@ -63,7 +63,6 @@ impl Pager {
     /// Creates new instance of pager using `env` environment variable instead of PAGER
     pub fn env(env: &str) -> Self {
         let pager = utils::find_pager(env);
-        println!("{:?}", pager.clone().map(|p| p.into_string()));
 
         Pager {
             pager: pager,
