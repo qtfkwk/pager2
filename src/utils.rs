@@ -64,7 +64,7 @@ pub fn find_pager(env: &str) -> Option<OsString> {
     if env::var_os("NOPAGER").is_some() {
         return None;
     }
-    let default_pager = || which("more");
+    let default_pager = || which("more -r");
     env::var_os(env).or_else(default_pager)
 }
 
