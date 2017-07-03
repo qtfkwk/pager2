@@ -71,6 +71,26 @@ impl Pager {
         }
     }
 
+    /// Sets the pager to use the specified pager executable.
+    pub fn with_executable(&mut self, exec: &str) -> &mut Self {
+        let parts: Vec<String> = exec.split(" ").map(|s| s.to_string()).collect();
+        if parts.is_empty() {
+            return self;
+        }
+
+
+        let args = parts[1..].join(" ");
+        let path_opt = utils::which(&parts[0]);
+
+        self.pager = path_opt.map(|mut path| {
+            path.push(" ");
+            path.push(args);
+            path
+        });
+
+        self
+    }
+
     /// Gives quick assessment of successful Pager setup
     pub fn is_on(&self) -> bool {
         self.on
