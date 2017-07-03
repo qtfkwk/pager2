@@ -1,6 +1,7 @@
 use std::env;
 use std::ffi::{CString, OsString};
 use std::os::unix::ffi::OsStringExt;
+use std::path::PathBuf;
 use std::ptr;
 
 use errno;
@@ -47,13 +48,13 @@ pub fn pipe() -> (i32, i32) {
     (fds[0], fds[1])
 }
 
-fn which(exec: &str) -> Option<OsString> {
+fn which(exec: &str) -> Option<PathBuf> {
     if let Some(path) = env::var_os("PATH") {
         let paths = env::split_paths(&path);
         for path in paths {
             let candidate = path.join(exec);
             if path.join(exec).exists() {
-                return Some(candidate.into_os_string());
+                return Some(candidate);
             }
         }
     }
@@ -64,7 +65,7 @@ pub fn find_pager(env: &str) -> Option<OsString> {
     if env::var_os("NOPAGER").is_some() {
         return None;
     }
-    let default_pager = || which("more -r");
+    let default_pager = || which("more").map(|p| PathBuf::from(format!("{} -r", p.display())).into_os_string());
     env::var_os(env).or_else(default_pager)
 }
 
@@ -72,6 +73,7 @@ pub fn find_pager(env: &str) -> Option<OsString> {
 mod tests {
     use super::{find_pager, which};
     use std::ffi::OsString;
+    use std::path::PathBuf;
 
     #[cfg(target_os = "linux")]
     const MORE: &'static str = "/bin/more";
@@ -91,7 +93,7 @@ mod tests {
 
     #[test]
     fn which_more() {
-        assert_eq!(which("more"), Some(OsString::from(MORE)));
+        assert_eq!(which("more"), Some(PathBuf::from(MORE)));
     }
 
     #[test]
