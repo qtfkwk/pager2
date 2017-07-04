@@ -30,6 +30,21 @@
 //! }
 //! ```
 //!
+//! Alternatively you can specify directly the desired pager command, exactly
+//! as it would appear in PAGER environment variable. This is useful if you
+//! need some specific pager and/or flags (like "more -r") and would like to
+//! avoid forcing your consumers into modifying their existing PAGER
+//! configuration just for your application.
+//!
+//! ```rust
+//! extern crate pager;
+//! use pager::Pager;
+//! fn main() {
+//!     Pager::with_pager("more -r").setup();
+//!     // The rest of your program goes here
+//! }
+//! ```
+//!
 //! If no suitable pager found `setup()` does nothing and your executable keeps
 //! running as usual. `Pager` cleans after itself and doesn't leak resources in
 //! case of setup failure.
@@ -67,6 +82,15 @@ impl Pager {
         Pager {
             pager: pager,
             env: String::from(env).into(),
+            on: true,
+        }
+    }
+
+    /// Creates a new pager instance directly specifying the desired pager
+    pub fn with_pager(pager: &str) -> Self {
+        Pager {
+            pager: OsString::from(pager).into(),
+            env: None,
             on: true,
         }
     }
