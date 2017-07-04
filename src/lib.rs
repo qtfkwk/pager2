@@ -50,7 +50,7 @@ const DEFAULT_PAGER_ENV: &str = "PAGER";
 #[derive(Debug, Default)]
 pub struct Pager {
     pager: Option<OsString>,
-    env: String,
+    env: Option<String>,
     on: bool,
 }
 
@@ -66,7 +66,7 @@ impl Pager {
 
         Pager {
             pager: pager,
-            env: env.into(),
+            env: String::from(env).into(),
             on: true,
         }
     }
