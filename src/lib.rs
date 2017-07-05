@@ -25,7 +25,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     Pager::env("MY_PAGER").setup();
+//!     Pager::with_env("MY_PAGER").setup();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -72,11 +72,11 @@ pub struct Pager {
 impl Pager {
     /// Creates new instance of pager with default settings
     pub fn new() -> Self {
-        Pager::env(DEFAULT_PAGER_ENV)
+        Pager::with_env(DEFAULT_PAGER_ENV)
     }
 
     /// Creates new instance of pager using `env` environment variable instead of PAGER
-    pub fn env(env: &str) -> Self {
+    pub fn with_env(env: &str) -> Self {
         let pager = utils::find_pager(env);
 
         Pager {
@@ -84,6 +84,11 @@ impl Pager {
             env: String::from(env).into(),
             on: true,
         }
+    }
+
+    #[deprecated(since = "0.12.0", note = "use with_env() instead")]
+    pub fn env(env: &str) -> Self {
+        Pager::with_env(env)
     }
 
     /// Creates a new pager instance directly specifying the desired pager
