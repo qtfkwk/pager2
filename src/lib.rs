@@ -32,7 +32,7 @@
 //!
 //! Alternatively you can specify directly the desired pager command, exactly
 //! as it would appear in PAGER environment variable. This is useful if you
-//! need some specific pager and/or flags (like "more -r") and would like to
+//! need some specific pager and/or flags (like "less -r") and would like to
 //! avoid forcing your consumers into modifying their existing PAGER
 //! configuration just for your application.
 //!
@@ -40,7 +40,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     Pager::with_pager("more -r").setup();
+//!     Pager::with_pager("less -r").setup();
 //!     // The rest of your program goes here
 //! }
 //! ```
