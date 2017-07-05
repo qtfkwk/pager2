@@ -44,6 +44,21 @@ If no suitable pager found `setup()` does nothing and your executable keeps
 running as usual. `Pager` cleans after itself and doesn't leak resources in
 case of setup failure.
 
+Alternatively you can specify directly the desired pager command, exactly
+as it would appear in PAGER environment variable. This is useful if you
+need some specific pager and/or flags (like "less -r") and would like to
+avoid forcing your consumers into modifying their existing PAGER
+configuration just for your application.
+
+```rust
+extern crate pager;
+use pager::Pager;
+fn main() {
+    Pager::with_pager("less -r").setup();
+    // The rest of your program goes here
+}
+```
+
 If you need to disable pager altogether set environment variable `NOPAGER`
 and Pager::setup() will skip initialization. The host application will continue
 as normal. Pager::is_on() will reflect the fact that no Pager is active.
