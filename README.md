@@ -35,7 +35,7 @@ extern crate pager;
 use pager::Pager;
 
 fn main() {
-    Pager::env("MY_PAGER").setup();
+    Pager::with_env("MY_PAGER").setup();
     // The rest of your program goes here
 }
 ```
