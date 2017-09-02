@@ -130,6 +130,8 @@ impl Pager {
                     utils::execvp(pager);
                 }
             }
+        } else {
+            self.on = false;
         }
     }
 }
