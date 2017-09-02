@@ -70,8 +70,7 @@ pub fn find_pager(env: &str) -> Option<OsString> {
 
 #[cfg(test)]
 mod tests {
-    use super::{find_pager, which};
-    use std::ffi::OsString;
+    use super::*;
 
     #[cfg(target_os = "linux")]
     const MORE: &'static str = "/bin/more";
@@ -97,5 +96,12 @@ mod tests {
     #[test]
     fn usr_bin_more_default_pager() {
         assert_eq!(find_pager("__RANDOM_NAME"), Some(OsString::from(MORE)));
+    }
+
+    #[test]
+    fn nopager() {
+        env::set_var("NOPAGER", "");
+        assert!(find_pager("more").is_none());
+        env::remove_var("NOPAGER");
     }
 }
