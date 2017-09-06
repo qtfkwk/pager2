@@ -17,3 +17,6 @@ gitlab = { repository = "imp/pager-rs" }
 [dependencies]
 errno = "0.2"
 libc = "0.2"
+
+[features]
+pedantic = []

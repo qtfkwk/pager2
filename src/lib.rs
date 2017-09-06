@@ -65,6 +65,8 @@
 //! will skip initialization. The host application will continue as normal. `Pager::is_on()` will
 //! reflect the fact that no Pager is active.
 
+#![cfg_attr(all(feature = "cargo-clippy", feature = "pedantic"), warn(clippy_pedantic))]
+
 extern crate errno;
 extern crate libc;
 
@@ -74,6 +76,7 @@ use std::ffi::OsString;
 
 const DEFAULT_PAGER_ENV: &str = "PAGER";
 
+/// Keeps track of the current pager state
 #[derive(Debug, Default)]
 pub struct Pager {
     pager: Option<OsString>,
@@ -85,14 +88,14 @@ pub struct Pager {
 impl Pager {
     /// Creates new instance of pager with default settings
     pub fn new() -> Self {
-        Pager::with_env(DEFAULT_PAGER_ENV)
+        Self::with_env(DEFAULT_PAGER_ENV)
     }
 
     /// Creates new instance of pager using `env` environment variable instead of PAGER
     pub fn with_env(env: &str) -> Self {
         let pager = utils::find_pager(env);
 
-        Pager {
+        Self {
             pager: pager,
             env: String::from(env).into(),
             on: true,
@@ -102,12 +105,12 @@ impl Pager {
 
     #[deprecated(since = "0.12.0", note = "use with_env() instead")]
     pub fn env(env: &str) -> Self {
-        Pager::with_env(env)
+        Self::with_env(env)
     }
 
     /// Creates a new pager instance directly specifying the desired pager
     pub fn with_pager(pager: &str) -> Self {
-        Pager {
+        Self {
             pager: OsString::from(pager).into(),
             env: None,
             on: true,
@@ -117,7 +120,7 @@ impl Pager {
 
     /// Instructs `Pager` to bypass invoking pager if output is not a `tty`
     pub fn skip_on_notty(self) -> Self {
-        Pager {
+        Self {
             skip_on_notty: true,
             ..self
         }
