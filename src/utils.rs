@@ -68,6 +68,11 @@ pub fn find_pager(env: &str) -> Option<OsString> {
     env::var_os(env).or_else(default_pager)
 }
 
+pub fn isatty(fd: i32) -> bool {
+    let isatty = unsafe { libc::isatty(fd) };
+    isatty != 0
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

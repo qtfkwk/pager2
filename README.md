@@ -59,6 +59,19 @@ fn main() {
 }
 ```
 
+Sometimes you may want to bypass pager if the output of you executable
+is not a `tty`. If this case you may use `.skip_on_notty()` to get the
+desirable effect.
+
+```rust
+extern crate pager;
+use pager::Pager;
+fn main() {
+    Pager::new().skip_on_notty().setup();
+    // The rest of your program goes here
+}
+```
+
 If you need to disable pager altogether set environment variable `NOPAGER`
 and Pager::setup() will skip initialization. The host application will continue
 as normal. Pager::is_on() will reflect the fact that no Pager is active.

@@ -12,3 +12,10 @@ fn nopager() {
     env::remove_var("NOPAGER");
     assert!(!pager.is_on());
 }
+
+#[test]
+fn notty() {
+    let mut pager = Pager::new().skip_on_notty();
+    pager.setup();
+    assert!(!pager.is_on());
+}
