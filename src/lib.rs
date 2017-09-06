@@ -86,7 +86,7 @@ pub struct Pager {
 }
 
 impl Pager {
-    /// Creates new instance of pager with default settings
+    /// Creates new instance of `Pager` with default settings
     pub fn new() -> Self {
         Self::with_env(DEFAULT_PAGER_ENV)
     }
@@ -108,7 +108,7 @@ impl Pager {
         Self::with_env(env)
     }
 
-    /// Creates a new pager instance directly specifying the desired pager
+    /// Creates a new `Pager` instance directly specifying the desired pager
     pub fn with_pager(pager: &str) -> Self {
         Self {
             pager: OsString::from(pager).into(),
@@ -126,7 +126,7 @@ impl Pager {
         }
     }
 
-    /// Gives quick assessment of successful Pager setup
+    /// Gives quick assessment of successful `Pager` setup
     pub fn is_on(&self) -> bool {
         self.on
     }
