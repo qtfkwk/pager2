@@ -77,11 +77,12 @@ pub fn isatty(fd: i32) -> bool {
 mod tests {
     use super::*;
 
-    #[cfg(target_os = "linux")]
     const MORE: &str = "/bin/more";
 
-    #[cfg(target_os = "macos")]
-    const MORE: &str = "/usr/bin/more";
+    fn assert_ends_with_bin_more(more: OsString) {
+        let good = more.to_str().map(|m| m.ends_with(MORE)).unwrap_or(false);
+        assert!(good, "{:?} doesn't end with {}", more, MORE);
+    }
 
     #[test]
     fn more_found_in_path() {
@@ -95,12 +96,12 @@ mod tests {
 
     #[test]
     fn which_more() {
-        assert_eq!(which("more"), Some(OsString::from(MORE)));
+        which("more").map(assert_ends_with_bin_more);
     }
 
     #[test]
     fn usr_bin_more_default_pager() {
-        assert_eq!(find_pager("__RANDOM_NAME"), Some(OsString::from(MORE)));
+        find_pager("__RANDOM_NAME").map(assert_ends_with_bin_more);
     }
 
     #[test]
