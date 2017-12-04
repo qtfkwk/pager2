@@ -78,10 +78,10 @@ mod tests {
     use super::*;
 
     #[cfg(target_os = "linux")]
-    const MORE: &'static str = "/bin/more";
+    const MORE: &str = "/bin/more";
 
     #[cfg(target_os = "macos")]
-    const MORE: &'static str = "/usr/bin/more";
+    const MORE: &str = "/usr/bin/more";
 
     #[test]
     fn more_found_in_path() {
