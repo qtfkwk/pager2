@@ -49,8 +49,7 @@ pub fn pipe() -> (i32, i32) {
 
 fn which(exec: &str) -> Option<OsString> {
     if let Some(path) = env::var_os("PATH") {
-        let paths = env::split_paths(&path);
-        for path in paths {
+        for path in env::split_paths(&path) {
             let candidate = path.join(exec);
             if path.join(exec).exists() {
                 return Some(candidate.into_os_string());
