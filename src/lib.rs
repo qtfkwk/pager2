@@ -75,6 +75,7 @@ mod utils;
 
 use std::ffi::OsString;
 
+/// Default pager environment variable
 const DEFAULT_PAGER_ENV: &str = "PAGER";
 
 /// Keeps track of the current pager state
