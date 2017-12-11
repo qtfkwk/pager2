@@ -126,9 +126,19 @@ impl Pager {
     }
 
     /// Instructs `Pager` to bypass invoking pager if output is not a `tty`
+    #[deprecated(since = "0.14.0", note = "'skip_on_notty' is default now")]
     pub fn skip_on_notty(self) -> Self {
         Self {
             skip_on_notty: true,
+            ..self
+        }
+    }
+
+    /// Instructs `Pager` to force invoking pager even if output is not a `tty`
+    #[doc(hidden)]
+    pub fn force_on_notty(self) -> Self {
+        Self {
+            skip_on_notty: false,
             ..self
         }
     }

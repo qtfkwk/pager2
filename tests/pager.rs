@@ -14,8 +14,15 @@ fn nopager() {
 }
 
 #[test]
-fn notty() {
-    let mut pager = Pager::new().skip_on_notty();
+fn skip_on_notty() {
+    let mut pager = Pager::new();
     pager.setup();
     assert!(!pager.is_on());
+}
+
+#[test]
+fn force_on_notty() {
+    let mut pager = Pager::new().force_on_notty();
+    pager.setup();
+    assert!(pager.is_on());
 }
