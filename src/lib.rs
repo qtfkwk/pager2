@@ -90,7 +90,7 @@ impl Default for Pager {
         Self {
             pager: None,
             on: true,
-            skip_on_notty: false,
+            skip_on_notty: true,
         }
     }
 }
