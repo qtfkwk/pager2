@@ -78,12 +78,23 @@ use std::ffi::OsString;
 const DEFAULT_PAGER_ENV: &str = "PAGER";
 
 /// Keeps track of the current pager state
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Pager {
     pager: Option<OsString>,
     env: Option<String>,
     on: bool,
     skip_on_notty: bool,
+}
+
+impl Default for Pager {
+    fn default() -> Self {
+        Self {
+            pager: None,
+            env: None,
+            on: true,
+            skip_on_notty: false,
+        }
+    }
 }
 
 impl Pager {
@@ -99,8 +110,7 @@ impl Pager {
         Self {
             pager: pager,
             env: String::from(env).into(),
-            on: true,
-            skip_on_notty: false,
+            ..Default::default()
         }
     }
 
@@ -113,9 +123,7 @@ impl Pager {
     pub fn with_pager(pager: &str) -> Self {
         Self {
             pager: OsString::from(pager).into(),
-            env: None,
-            on: true,
-            skip_on_notty: false,
+            ..Default::default()
         }
     }
 
