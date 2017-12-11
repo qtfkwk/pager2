@@ -81,7 +81,6 @@ const DEFAULT_PAGER_ENV: &str = "PAGER";
 #[derive(Debug)]
 pub struct Pager {
     pager: Option<OsString>,
-    env: Option<String>,
     on: bool,
     skip_on_notty: bool,
 }
@@ -90,7 +89,6 @@ impl Default for Pager {
     fn default() -> Self {
         Self {
             pager: None,
-            env: None,
             on: true,
             skip_on_notty: false,
         }
@@ -109,7 +107,6 @@ impl Pager {
 
         Self {
             pager: pager,
-            env: String::from(env).into(),
             ..Default::default()
         }
     }
