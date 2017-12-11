@@ -134,15 +134,6 @@ impl Pager {
         }
     }
 
-    /// Instructs `Pager` to force invoking pager even if output is not a `tty`
-    #[doc(hidden)]
-    pub fn force_on_notty(self) -> Self {
-        Self {
-            skip_on_notty: false,
-            ..self
-        }
-    }
-
     /// Gives quick assessment of successful `Pager` setup
     pub fn is_on(&self) -> bool {
         self.on

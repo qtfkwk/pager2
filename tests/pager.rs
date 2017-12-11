@@ -19,10 +19,3 @@ fn skip_on_notty() {
     pager.setup();
     assert!(!pager.is_on());
 }
-
-#[test]
-fn force_on_notty() {
-    let mut pager = Pager::new().force_on_notty();
-    pager.setup();
-    assert!(pager.is_on());
-}
