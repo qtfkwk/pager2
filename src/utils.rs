@@ -47,18 +47,6 @@ pub fn pipe() -> (i32, i32) {
     (fds[0], fds[1])
 }
 
-fn which(exec: &str) -> Option<OsString> {
-    if let Some(path) = env::var_os("PATH") {
-        for path in env::split_paths(&path) {
-            let candidate = path.join(exec);
-            if path.join(exec).exists() {
-                return Some(candidate.into_os_string());
-            }
-        }
-    }
-    None
-}
-
 pub fn isatty(fd: i32) -> bool {
     let isatty = unsafe { libc::isatty(fd) };
     isatty != 0
