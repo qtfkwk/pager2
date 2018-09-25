@@ -59,14 +59,6 @@ fn which(exec: &str) -> Option<OsString> {
     None
 }
 
-pub fn find_pager(env: &str) -> Option<OsString> {
-    if env::var_os("NOPAGER").is_some() {
-        return None;
-    }
-    let default_pager = || which("more");
-    env::var_os(env).or_else(default_pager)
-}
-
 pub fn isatty(fd: i32) -> bool {
     let isatty = unsafe { libc::isatty(fd) };
     isatty != 0
