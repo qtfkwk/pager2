@@ -73,14 +73,22 @@ extern crate libc;
 
 mod utils;
 
-use std::ffi::OsString;
+use std::env;
+use std::ffi::{OsStr, OsString};
 
 /// Default pager environment variable
 const DEFAULT_PAGER_ENV: &str = "PAGER";
 
+/// Environment variable to disable pager altogether
+const NOPAGER_ENV: &str = "NOPAGER";
+
+/// Last resort pager. Should work everywhere.
+const DEFAULT_PAGER: &str = "more";
+
 /// Keeps track of the current pager state
 #[derive(Debug)]
 pub struct Pager {
+    default_pager: Option<OsString>,
     pager: Option<OsString>,
     on: bool,
     skip_on_notty: bool,
@@ -89,7 +97,8 @@ pub struct Pager {
 impl Default for Pager {
     fn default() -> Self {
         Self {
-            pager: None,
+            default_pager: None,
+            pager: env::var_os(DEFAULT_PAGER_ENV),
             on: true,
             skip_on_notty: true,
         }
@@ -99,15 +108,13 @@ impl Default for Pager {
 impl Pager {
     /// Creates new instance of `Pager` with default settings
     pub fn new() -> Self {
-        Self::with_env(DEFAULT_PAGER_ENV)
+        Default::default()
     }
 
     /// Creates new instance of pager using `env` environment variable instead of PAGER
     pub fn with_env(env: &str) -> Self {
-        let pager = utils::find_pager(env);
-
         Self {
-            pager: pager,
+            pager: env::var_os(env),
             ..Default::default()
         }
     }
@@ -117,10 +124,22 @@ impl Pager {
         Self::with_env(env)
     }
 
+    /// Creates a new `Pager` instance with the specified default fallback
+    pub fn with_default_pager<S>(pager: S) -> Self
+    where
+        S: Into<OsString>,
+    {
+        let default_pager = Some(pager.into());
+        Self {
+            default_pager,
+            ..Default::default()
+        }
+    }
+
     /// Creates a new `Pager` instance directly specifying the desired pager
     pub fn with_pager(pager: &str) -> Self {
         Self {
-            pager: OsString::from(pager).into(),
+            pager: Some(pager.into()),
             ..Default::default()
         }
     }
@@ -139,6 +158,19 @@ impl Pager {
         self.on
     }
 
+    fn pager(&self) -> Option<OsString> {
+        let fallback_pager = || Some(OsStr::new(DEFAULT_PAGER).into());
+
+        if env::var_os(NOPAGER_ENV).is_some() {
+            None
+        } else {
+            self.pager
+                .clone()
+                .or_else(|| self.default_pager.clone())
+                .or_else(fallback_pager)
+        }
+    }
+
     /// Initiates Pager framework and sets up all the necessary environment for sending standard
     /// output to the activated pager.
     pub fn setup(&mut self) {
@@ -146,7 +178,7 @@ impl Pager {
             self.on = false;
             return;
         }
-        if let Some(ref pager) = self.pager {
+        if let Some(ref pager) = self.pager() {
             let (pager_stdin, main_stdout) = utils::pipe();
             let pid = utils::fork();
             match pid {
@@ -171,5 +203,99 @@ impl Pager {
         } else {
             self.on = false;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::ops::Drop;
+
+    enum PagerEnv {
+        Reinstate(OsString, OsString),
+        Remove(OsString)
+    }
+
+    impl PagerEnv {
+        fn new<S: AsRef<OsStr>>(env: S) -> Self {
+            let env = env.as_ref().into();
+            if let Some(value) = env::var_os(&env) {
+                PagerEnv::Reinstate(env, value)
+            } else {
+                PagerEnv::Remove(env)
+            }
+        }
+
+        fn set<S: AsRef<OsStr>>(&self, value: S) {
+            match self {
+                | PagerEnv::Reinstate(env, _)
+                | PagerEnv::Remove(env) => env::set_var(env, value)
+            }
+        }
+
+        fn remove(&self) {
+            match self {
+                | PagerEnv::Reinstate(env, _)
+                | PagerEnv::Remove(env) => env::remove_var(env)
+            }
+        }
+    }
+
+    impl Drop for PagerEnv {
+        fn drop(&mut self) {
+            match self {
+                PagerEnv::Reinstate(env, value) => env::set_var(env, value),
+                PagerEnv::Remove(env) => env::remove_var(env),
+            }
+        }
+    }
+
+    fn assert_pager(pager: &Pager, result: &str) {
+        assert_eq!(pager.pager(), Some(OsStr::new(result).into()));
+    }
+
+    #[test]
+    fn nopager() {
+        let nopager = PagerEnv::new(NOPAGER_ENV);
+        nopager.set("");
+
+        let pager = Pager::new();
+        assert!(pager.pager().is_none());
+    }
+
+    #[test]
+    fn fallback_uses_more() {
+        let pager = Pager::new();
+        assert_pager(&pager, DEFAULT_PAGER);
+    }
+
+    #[test]
+    fn with_default_pager_without_env() {
+        let pagerenv = PagerEnv::new(DEFAULT_PAGER_ENV);
+        pagerenv.remove();
+
+        let pager = Pager::with_default_pager("more_or_less");
+        assert_pager(&pager, "more_or_less");
+    }
+
+    #[test]
+    fn with_default_pager_with_env() {
+        let pagerenv = PagerEnv::new(DEFAULT_PAGER_ENV);
+        pagerenv.set("something_else");
+
+        let pager = Pager::with_default_pager("more_or_less");
+        assert_pager(&pager, "something_else");
+    }
+
+    #[test]
+    fn with_default_pager() {
+        let pager = Pager::with_default_pager("more_or_less");
+        assert_pager(&pager, "more_or_less");
+    }
+
+    #[test]
+    fn with_pager() {
+        let pager = Pager::with_pager("now_or_never");
+        assert_pager(&pager, "now_or_never");
     }
 }

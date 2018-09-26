@@ -1,4 +1,3 @@
-use std::env;
 use std::ffi::{CString, OsString};
 use std::os::unix::ffi::OsStringExt;
 use std::ptr;
@@ -50,43 +49,4 @@ pub fn pipe() -> (i32, i32) {
 pub fn isatty(fd: i32) -> bool {
     let isatty = unsafe { libc::isatty(fd) };
     isatty != 0
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    const MORE: &str = "/bin/more";
-
-    fn assert_ends_with_bin_more(more: OsString) {
-        let good = more.to_str().map(|m| m.ends_with(MORE)).unwrap_or(false);
-        assert!(good, "{:?} doesn't end with {}", more, MORE);
-    }
-
-    #[test]
-    fn more_found_in_path() {
-        assert!(which("more").is_some())
-    }
-
-    #[test]
-    fn erom_not_found_in_path() {
-        assert!(which("erom").is_none())
-    }
-
-    #[test]
-    fn which_more() {
-        which("more").map(assert_ends_with_bin_more);
-    }
-
-    #[test]
-    fn usr_bin_more_default_pager() {
-        find_pager("__RANDOM_NAME").map(assert_ends_with_bin_more);
-    }
-
-    #[test]
-    fn nopager() {
-        env::set_var("NOPAGER", "");
-        assert!(find_pager("more").is_none());
-        env::remove_var("NOPAGER");
-    }
 }
