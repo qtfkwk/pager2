@@ -119,14 +119,14 @@ impl Default for Pager {
 impl Pager {
     /// Creates new instance of `Pager` with default settings
     pub fn new() -> Self {
-        Default::default()
+        Self::default()
     }
 
     /// Creates new instance of pager using `env` environment variable instead of PAGER
     pub fn with_env(env: &str) -> Self {
         Self {
             pager: env::var_os(env),
-            ..Default::default()
+            ..Self::default()
         }
     }
 
@@ -143,7 +143,7 @@ impl Pager {
         let default_pager = Some(pager.into());
         Self {
             default_pager,
-            ..Default::default()
+            ..Self::default()
         }
     }
 
@@ -151,7 +151,7 @@ impl Pager {
     pub fn with_pager(pager: &str) -> Self {
         Self {
             pager: Some(pager.into()),
-            ..Default::default()
+            ..Self::default()
         }
     }
 
