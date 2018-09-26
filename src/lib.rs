@@ -76,7 +76,7 @@
 //! will skip initialization. The host application will continue as normal. `Pager::is_on()` will
 //! reflect the fact that no Pager is active.
 
-#![doc(html_root_url = "https://docs.rs/pager/0.14.0")]
+#![doc(html_root_url = "https://docs.rs/pager/0.15.0")]
 #![cfg_attr(all(feature = "cargo-clippy", feature = "pedantic"), warn(clippy_pedantic))]
 
 extern crate errno;

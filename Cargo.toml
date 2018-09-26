@@ -7,7 +7,7 @@ license = "Apache-2.0/MIT"
 name = "pager"
 readme = "README.md"
 repository = "https://gitlab.com/imp/pager-rs.git"
-version = "0.14.0" # remember to update html_root_url
+version = "0.15.0" # remember to update html_root_url
 categories = ["command-line-interface", "text-processing"]
 
 [badges]
