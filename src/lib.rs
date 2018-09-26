@@ -30,6 +30,17 @@
 //! }
 //! ```
 //!
+//! Also you can set alternative default (fallback) pager to be used instead of
+//! `more`. PAGER environment variable (if set) will still have precedence.
+//!
+//! ```rust
+//! extern crate pager;
+//! use pager::Pager;
+//! fn main() {
+//!     Pager::with_default_pager("pager").setup();
+//!     // The rest of your program goes here
+//! }
+//! ```
 //! Alternatively you can specify directly the desired pager command, exactly
 //! as it would appear in PAGER environment variable. This is useful if you
 //! need some specific pager and/or flags (like "less -r") and would like to
@@ -40,7 +51,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     Pager::with_pager("less -r").setup();
+//!     Pager::with_pager("pager -r").setup();
 //!     // The rest of your program goes here
 //! }
 //! ```
