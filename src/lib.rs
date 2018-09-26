@@ -224,7 +224,7 @@ mod tests {
 
     enum PagerEnv {
         Reinstate(OsString, OsString),
-        Remove(OsString)
+        Remove(OsString),
     }
 
     impl PagerEnv {
@@ -239,15 +239,13 @@ mod tests {
 
         fn set<S: AsRef<OsStr>>(&self, value: S) {
             match self {
-                | PagerEnv::Reinstate(env, _)
-                | PagerEnv::Remove(env) => env::set_var(env, value)
+                PagerEnv::Reinstate(env, _) | PagerEnv::Remove(env) => env::set_var(env, value),
             }
         }
 
         fn remove(&self) {
             match self {
-                | PagerEnv::Reinstate(env, _)
-                | PagerEnv::Remove(env) => env::remove_var(env)
+                PagerEnv::Reinstate(env, _) | PagerEnv::Remove(env) => env::remove_var(env),
             }
         }
     }
