@@ -39,6 +39,20 @@ fn main() {
     // The rest of your program goes here
 }
 ```
+Also you can set alternative default (fallback) pager to be used instead of
+`more`. PAGER environment variable (if set) will still have precedence.
+
+```rust
+extern crate pager;
+
+use pager::Pager;
+
+fn main() {
+    Pager::with_default_pager("pager").setup();
+    // The rest of your program goes here
+}
+```
+
 
 If no suitable pager found `setup()` does nothing and your executable keeps
 running as usual. `Pager` cleans after itself and doesn't leak resources in
