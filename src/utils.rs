@@ -32,6 +32,30 @@ pub fn execvp(cmd: &OsString) {
     unsafe { libc::execvp(args[0], args.as_ptr()) };
 }
 
+pub fn execvpe(cmd: &OsString, envs: &[OsString]) {
+    let cstrings = split_string(cmd)
+        .into_iter()
+        .map(osstring2cstring)
+        .collect::<Vec<_>>();
+    let mut args = cstrings.iter().map(|c| c.as_ptr()).collect::<Vec<_>>();
+    args.push(ptr::null());
+
+    let mut cstrings_envs = envs
+        .into_iter()
+        .map(|s| osstring2cstring(s.clone()))
+        .collect::<Vec<_>>();
+    for (mut k, v) in std::env::vars_os() {
+        k.push("=");
+        k.push(v);
+        cstrings_envs.push(osstring2cstring(k));
+    }
+    let mut envs = cstrings_envs.iter().map(|c| c.as_ptr()).collect::<Vec<_>>();
+    envs.push(ptr::null());
+
+    errno::set_errno(errno::Errno(0));
+    unsafe { libc::execvpe(args[0], args.as_ptr(), envs.as_ptr()) };
+}
+
 pub fn dup2(fd1: i32, fd2: i32) {
     assert!(unsafe { libc::dup2(fd1, fd2) } > -1);
 }

@@ -77,7 +77,10 @@
 //! reflect the fact that no Pager is active.
 
 #![doc(html_root_url = "https://docs.rs/pager/0.15.0")]
-#![cfg_attr(all(feature = "cargo-clippy", feature = "pedantic"), warn(clippy_pedantic))]
+#![cfg_attr(
+    all(feature = "cargo-clippy", feature = "pedantic"),
+    warn(clippy_pedantic)
+)]
 
 extern crate errno;
 extern crate libc;
@@ -101,6 +104,7 @@ const DEFAULT_PAGER: &str = "more";
 pub struct Pager {
     default_pager: Option<OsString>,
     pager: Option<OsString>,
+    envs: Vec<OsString>,
     on: bool,
     skip_on_notty: bool,
 }
@@ -110,6 +114,7 @@ impl Default for Pager {
         Self {
             default_pager: None,
             pager: env::var_os(DEFAULT_PAGER_ENV),
+            envs: Vec::new(),
             on: true,
             skip_on_notty: true,
         }
@@ -152,6 +157,14 @@ impl Pager {
         Self {
             pager: Some(pager.into()),
             ..Self::default()
+        }
+    }
+
+    /// Launch pager with the specified environment variables
+    pub fn set_pager_envs(self, envs: &[&str]) -> Self {
+        Self {
+            envs: envs.into_iter().map(|x| x.into()).collect(),
+            ..self
         }
     }
 
@@ -208,7 +221,11 @@ impl Pager {
                     // I am parent
                     utils::dup2(pager_stdin, libc::STDIN_FILENO);
                     utils::close(main_stdout);
-                    utils::execvp(pager);
+                    if self.envs.is_empty() {
+                        utils::execvp(pager);
+                    } else {
+                        utils::execvpe(pager, &self.envs);
+                    }
                 }
             }
         } else {
