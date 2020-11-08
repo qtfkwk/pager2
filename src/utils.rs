@@ -1,3 +1,4 @@
+use std::env;
 use std::ffi::{CString, OsString};
 use std::os::unix::ffi::OsStringExt;
 use std::ptr;
@@ -23,8 +24,11 @@ pub(crate) fn execvp(cmd: &OsString) {
         .into_iter()
         .map(osstring2cstring)
         .collect::<Vec<_>>();
-    let mut args = cstrings.iter().map(|c| c.as_ptr()).collect::<Vec<_>>();
-    args.push(ptr::null());
+    let args = cstrings
+        .iter()
+        .map(|c| c.as_ptr())
+        .chain(Some(ptr::null()))
+        .collect::<Vec<_>>();
     errno::set_errno(errno::Errno(0));
     unsafe { libc::execvp(args[0], args.as_ptr()) };
 }
@@ -34,23 +38,36 @@ pub(crate) fn execvpe(cmd: &OsString, envs: &[OsString]) {
         .into_iter()
         .map(osstring2cstring)
         .collect::<Vec<_>>();
-    let mut args = cstrings.iter().map(|c| c.as_ptr()).collect::<Vec<_>>();
-    args.push(ptr::null());
+    let args = cstrings
+        .iter()
+        .map(|c| c.as_ptr())
+        .chain(Some(ptr::null()))
+        .collect::<Vec<_>>();
 
-    let mut cstrings_envs = envs
-        .into_iter()
+    let mut envs = envs
+        .iter()
         .map(|s| osstring2cstring(s.clone()))
         .collect::<Vec<_>>();
-    for (mut k, v) in std::env::vars_os() {
+    for (mut k, v) in env::vars_os() {
         k.push("=");
         k.push(v);
-        cstrings_envs.push(osstring2cstring(k));
+        envs.push(osstring2cstring(k));
     }
-    let mut envs = cstrings_envs.iter().map(|c| c.as_ptr()).collect::<Vec<_>>();
-    envs.push(ptr::null());
+    let envs = envs
+        .iter()
+        .map(|c| c.as_ptr())
+        .chain(Some(ptr::null()))
+        .collect::<Vec<_>>();
 
     errno::set_errno(errno::Errno(0));
-    unsafe { libc::execvpe(args[0], args.as_ptr(), envs.as_ptr()) };
+    #[cfg(target_os = "macos")]
+    unsafe {
+        libc::execve(args[0], args.as_ptr(), envs.as_ptr())
+    };
+    #[cfg(not(target_os = "macos"))]
+    unsafe {
+        libc::execvpe(args[0], args.as_ptr(), envs.as_ptr())
+    };
 }
 
 pub(crate) fn dup2(fd1: i32, fd2: i32) {
