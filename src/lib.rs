@@ -164,11 +164,9 @@ impl Pager {
     }
 
     /// Launch pager with the specified environment variables
-    pub fn set_pager_envs(self, envs: &[&str]) -> Self {
-        Self {
-            envs: envs.into_iter().map(|x| x.into()).collect(),
-            ..self
-        }
+    pub fn pager_envs(self, envs: impl IntoIterator<Item = impl Into<OsString>>) -> Self {
+        let envs = envs.into_iter().map(|s| s.into()).collect();
+        Self { envs, ..self }
     }
 
     /// Instructs `Pager` to bypass invoking pager if output is not a `tty`
