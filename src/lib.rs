@@ -77,13 +77,16 @@
 //! reflect the fact that no Pager is active.
 
 #![doc(html_root_url = "https://docs.rs/pager/0.15.0")]
-#![cfg_attr(
-    all(feature = "cargo-clippy", feature = "pedantic"),
-    warn(clippy_pedantic)
-)]
-
-extern crate errno;
-extern crate libc;
+#![cfg_attr(feature = "pedantic", warn(clippy::pedantic))]
+#![warn(clippy::use_self)]
+#![warn(deprecated_in_future)]
+#![warn(future_incompatible)]
+#![warn(unreachable_pub)]
+#![warn(missing_debug_implementations)]
+#![warn(rust_2018_compatibility)]
+#![warn(rust_2018_idioms)]
+#![warn(unused)]
+#![deny(warnings)]
 
 mod utils;
 
@@ -248,21 +251,21 @@ mod tests {
         fn new<S: AsRef<OsStr>>(env: S) -> Self {
             let env = env.as_ref().into();
             if let Some(value) = env::var_os(&env) {
-                PagerEnv::Reinstate(env, value)
+                Self::Reinstate(env, value)
             } else {
-                PagerEnv::Remove(env)
+                Self::Remove(env)
             }
         }
 
         fn set<S: AsRef<OsStr>>(&self, value: S) {
             match self {
-                PagerEnv::Reinstate(env, _) | PagerEnv::Remove(env) => env::set_var(env, value),
+                Self::Reinstate(env, _) | Self::Remove(env) => env::set_var(env, value),
             }
         }
 
         fn remove(&self) {
             match self {
-                PagerEnv::Reinstate(env, _) | PagerEnv::Remove(env) => env::remove_var(env),
+                Self::Reinstate(env, _) | Self::Remove(env) => env::remove_var(env),
             }
         }
     }
@@ -270,8 +273,8 @@ mod tests {
     impl Drop for PagerEnv {
         fn drop(&mut self) {
             match self {
-                PagerEnv::Reinstate(env, value) => env::set_var(env, value),
-                PagerEnv::Remove(env) => env::remove_var(env),
+                Self::Reinstate(env, value) => env::set_var(env, value),
+                Self::Remove(env) => env::remove_var(env),
             }
         }
     }

@@ -2,9 +2,6 @@ use std::ffi::{CString, OsString};
 use std::os::unix::ffi::OsStringExt;
 use std::ptr;
 
-use errno;
-use libc;
-
 fn osstring2cstring(s: OsString) -> CString {
     unsafe { CString::from_vec_unchecked(s.into_vec()) }
 }
@@ -17,11 +14,11 @@ fn split_string(s: &OsString) -> Vec<OsString> {
 }
 
 // Helper wrappers around libc::* API
-pub fn fork() -> libc::pid_t {
+pub(crate) fn fork() -> libc::pid_t {
     unsafe { libc::fork() }
 }
 
-pub fn execvp(cmd: &OsString) {
+pub(crate) fn execvp(cmd: &OsString) {
     let cstrings = split_string(cmd)
         .into_iter()
         .map(osstring2cstring)
@@ -32,7 +29,7 @@ pub fn execvp(cmd: &OsString) {
     unsafe { libc::execvp(args[0], args.as_ptr()) };
 }
 
-pub fn execvpe(cmd: &OsString, envs: &[OsString]) {
+pub(crate) fn execvpe(cmd: &OsString, envs: &[OsString]) {
     let cstrings = split_string(cmd)
         .into_iter()
         .map(osstring2cstring)
@@ -56,21 +53,20 @@ pub fn execvpe(cmd: &OsString, envs: &[OsString]) {
     unsafe { libc::execvpe(args[0], args.as_ptr(), envs.as_ptr()) };
 }
 
-pub fn dup2(fd1: i32, fd2: i32) {
+pub(crate) fn dup2(fd1: i32, fd2: i32) {
     assert!(unsafe { libc::dup2(fd1, fd2) } > -1);
 }
 
-pub fn close(fd: i32) {
+pub(crate) fn close(fd: i32) {
     assert_eq!(unsafe { libc::close(fd) }, 0);
 }
 
-pub fn pipe() -> (i32, i32) {
+pub(crate) fn pipe() -> (i32, i32) {
     let mut fds = [0; 2];
     assert_eq!(unsafe { libc::pipe(fds.as_mut_ptr()) }, 0);
     (fds[0], fds[1])
 }
 
-pub fn isatty(fd: i32) -> bool {
-    let isatty = unsafe { libc::isatty(fd) };
-    isatty != 0
+pub(crate) fn isatty(fd: i32) -> bool {
+    unsafe { libc::isatty(fd) != 0 }
 }

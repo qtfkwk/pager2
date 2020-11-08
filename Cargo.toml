@@ -8,6 +8,7 @@ name = "pager"
 readme = "README.md"
 repository = "https://gitlab.com/imp/pager-rs.git"
 version = "0.15.0" # remember to update html_root_url
+edition = "2018"
 categories = ["command-line-interface", "text-processing"]
 
 [badges]
