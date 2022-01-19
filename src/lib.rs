@@ -222,11 +222,7 @@ impl Pager {
                     // I am parent
                     utils::dup2(pager_stdin, libc::STDIN_FILENO);
                     utils::close(main_stdout);
-                    if self.envs.is_empty() {
-                        utils::execvp(pager);
-                    } else {
-                        utils::execvpe(pager, &self.envs);
-                    }
+                    utils::execvpe(pager, &self.envs);
                 }
             }
         } else {
