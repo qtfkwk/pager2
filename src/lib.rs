@@ -76,7 +76,7 @@
 //! will skip initialization. The host application will continue as normal. `Pager::is_on()` will
 //! reflect the fact that no Pager is active.
 
-#![doc(html_root_url = "https://docs.rs/pager/0.16.0")]
+#![doc(html_root_url = "https://docs.rs/pager/0.16.1")]
 #![cfg_attr(feature = "pedantic", warn(clippy::pedantic))]
 #![warn(clippy::use_self)]
 #![warn(deprecated_in_future)]

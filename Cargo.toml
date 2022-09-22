@@ -1,6 +1,6 @@
 [package]
 name = "pager"
-version = "0.16.0" # remember to update html_root_url
+version = "0.16.1"                                               # remember to update html_root_url
 authors = ["Cyril Plisko <cyril.plisko@mountall.com>"]
 description = "Helps pipe your output through an external pager"
 documentation = "https://docs.rs/pager"
