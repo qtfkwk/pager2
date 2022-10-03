@@ -1,5 +1,5 @@
 use std::ffi::{CString, OsString};
-use std::os::unix::ffi::{OsStrExt, OsStringExt};
+use std::os::unix::ffi::OsStringExt;
 use std::ptr;
 
 fn osstring2cstring(s: OsString) -> CString {
@@ -29,7 +29,13 @@ pub(crate) fn execvpe(cmd: &OsString, envs: &[OsString]) {
         .chain(Some(ptr::null()))
         .collect::<Vec<_>>();
 
-    for env in envs {
+    // hold CString until calling libc::execvp
+    let envs = envs
+        .iter()
+        .map(|x| osstring2cstring(x.clone()))
+        .collect::<Vec<_>>();
+
+    for env in &envs {
         unsafe { libc::putenv(env.as_bytes().as_ptr() as *mut _) };
     }
 
