@@ -171,7 +171,9 @@ impl Pager {
             .into_iter()
             .map(|s| {
                 let s: OsString = s.into();
-                let pair = s.to_str().unwrap();
+                let pair = s
+                    .to_str()
+                    .expect("Environment variable is not UTF-8 compliant");
                 let mut split = pair.split('=');
                 let (Some(key), Some(value), None) = (split.next(), split.next(), split.next())
                 else {
@@ -241,7 +243,10 @@ impl Pager {
                     utils::close(main_stdout);
 
                     let err = Command::new(pager).envs(self.envs.clone()).exec();
-                    eprintln!("Can't execute {}: {err}", pager.to_str().unwrap());
+                    eprintln!(
+                        "Can't execute {}: {err}",
+                        pager.to_str().expect("Pager path is not UTF-8 compliant")
+                    );
                     std::process::exit(1);
                 }
             }
