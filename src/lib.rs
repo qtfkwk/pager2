@@ -92,6 +92,8 @@ mod utils;
 
 use std::env;
 use std::ffi::{OsStr, OsString};
+use std::os::unix::process::CommandExt;
+use std::process::Command;
 
 /// Default pager environment variable
 const DEFAULT_PAGER_ENV: &str = "PAGER";
@@ -107,7 +109,7 @@ const DEFAULT_PAGER: &str = "more";
 pub struct Pager {
     default_pager: Option<OsString>,
     pager: Option<OsString>,
-    envs: Vec<OsString>,
+    envs: Vec<(OsString, OsString)>,
     on: bool,
     skip_on_notty: bool,
 }
@@ -165,7 +167,24 @@ impl Pager {
 
     /// Launch pager with the specified environment variables
     pub fn pager_envs(self, envs: impl IntoIterator<Item = impl Into<OsString>>) -> Self {
-        let envs = envs.into_iter().map(|s| s.into()).collect();
+        let envs: Vec<(OsString, OsString)> = envs
+            .into_iter()
+            .map(|s| {
+                let s: OsString = s.into();
+                let pair = s
+                    .to_str()
+                    .expect("Environment variable is not UTF-8 compliant");
+                let mut split = pair.split('=');
+                let (Some(key), Some(value), None) = (split.next(), split.next(), split.next())
+                else {
+                    panic!(
+                        "Invalid key-value pair for an environment variable: {}",
+                        pair
+                    );
+                };
+                (key.into(), value.into())
+            })
+            .collect();
         Self { envs, ..self }
     }
 
@@ -222,7 +241,22 @@ impl Pager {
                     // I am parent
                     utils::dup2(pager_stdin, libc::STDIN_FILENO);
                     utils::close(main_stdout);
-                    utils::execvpe(pager, &self.envs);
+
+                    let pager = pager.to_str().expect("Pager path is not UTF-8 compliant");
+                    let args = shell_words::split(pager).unwrap_or_else(|err| {
+                        panic!("Can't parse pager arguments: {}", err);
+                    });
+                    let (pager_cmd, args) = match args.len() {
+                        0 => unreachable!(),
+                        1 => (&args[0], &[] as &[String]),
+                        _ => (&args[0], &args[1..]),
+                    };
+                    let err = Command::new(pager_cmd)
+                        .args(args)
+                        .envs(self.envs.clone())
+                        .exec();
+                    eprintln!("Can't execute {pager_cmd}: {err}");
+                    std::process::exit(1);
                 }
             }
         } else {
