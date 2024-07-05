@@ -242,11 +242,22 @@ impl Pager {
                     utils::dup2(pager_stdin, libc::STDIN_FILENO);
                     utils::close(main_stdout);
 
-                    let err = Command::new(pager).envs(self.envs.clone()).exec();
-                    eprintln!(
-                        "Can't execute {}: {err}",
-                        pager.to_str().expect("Pager path is not UTF-8 compliant")
-                    );
+                    let pager = pager.to_str().expect("Pager path is not UTF-8 compliant");
+                    let args = shell_words::split(pager).unwrap_or_else(|err| {
+                        panic!("Can't parse pager arguments: {}", err);
+                    });
+                    let (pager_cmd, args) = if args.is_empty() {
+                        unreachable!()
+                    } else if args.len() == 1 {
+                        (&args[0], &[] as &[String])
+                    } else {
+                        (&args[0], &args[1..])
+                    };
+                    let err = Command::new(pager_cmd)
+                        .args(args)
+                        .envs(self.envs.clone())
+                        .exec();
+                    eprintln!("Can't execute {pager_cmd}: {err}");
                     std::process::exit(1);
                 }
             }
