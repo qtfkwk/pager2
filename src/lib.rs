@@ -246,12 +246,10 @@ impl Pager {
                     let args = shell_words::split(pager).unwrap_or_else(|err| {
                         panic!("Can't parse pager arguments: {}", err);
                     });
-                    let (pager_cmd, args) = if args.is_empty() {
-                        unreachable!()
-                    } else if args.len() == 1 {
-                        (&args[0], &[] as &[String])
-                    } else {
-                        (&args[0], &args[1..])
+                    let (pager_cmd, args) = match args.len() {
+                        0 => unreachable!(),
+                        1 => (&args[0], &[] as &[String]),
+                        _ => (&args[0], &args[1..]),
                     };
                     let err = Command::new(pager_cmd)
                         .args(args)
