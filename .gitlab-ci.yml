@@ -1,7 +1,7 @@
 .cargo_test_template: &cargo_test
   stage: test
   script:
-    - cargo test --verbose --jobs 1
+    - cargo test --verbose
 
 stages:
   - test
