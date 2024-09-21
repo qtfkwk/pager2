@@ -7,7 +7,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     Pager::new().setup();
+//!     let _pager = Pager::new().setup().unwrap();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -25,7 +25,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     Pager::with_env("MY_PAGER").setup();
+//!     let _pager = Pager::with_env("MY_PAGER").setup().unwrap();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -37,7 +37,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     Pager::with_default_pager("pager").setup();
+//!     let _pager = Pager::with_default_pager("pager").setup().unwrap();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -51,7 +51,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     Pager::with_pager("pager -r").setup();
+//!     let _pager = Pager::with_pager("pager -r").setup().unwrap();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -59,18 +59,6 @@
 //! If no suitable pager found `setup()` does nothing and your executable keeps
 //! running as usual. `Pager` cleans after itself and doesn't leak resources in
 //! case of setup failure.
-//!
-//! Sometimes you may want to bypass pager if the output of you executable is not a `tty`.
-//! If this case you may use `.skip_on_notty()` to get the desirable effect.
-//!
-//! ```rust
-//! extern crate pager;
-//! use pager::Pager;
-//! fn main() {
-//!     Pager::new().skip_on_notty().setup();
-//!     // The rest of your program goes here
-//! }
-//! ```
 //!
 //! If you need to disable pager altogether set environment variable `NOPAGER` and `Pager::setup()`
 //! will skip initialization. The host application will continue as normal. `Pager::is_on()` will
@@ -88,10 +76,14 @@
 #![warn(unused)]
 #![deny(warnings)]
 
-mod utils;
-
-use std::env;
-use std::ffi::{OsStr, OsString};
+use std::{
+    env,
+    ffi::{OsStr, OsString},
+    fs::File,
+    io::{stdout, Error, IsTerminal, Result, Write},
+    os::fd::{AsRawFd, RawFd},
+    process::{Child, Command, Stdio},
+};
 
 /// Default pager environment variable
 const DEFAULT_PAGER_ENV: &str = "PAGER";
@@ -107,9 +99,13 @@ const DEFAULT_PAGER: &str = "more";
 pub struct Pager {
     default_pager: Option<OsString>,
     pager: Option<OsString>,
-    envs: Vec<OsString>,
-    on: bool,
-    skip_on_notty: bool,
+    envs: Vec<(OsString, OsString)>,
+}
+
+#[derive(Debug)]
+pub struct PagerProcess {
+    pager: Option<Child>,
+    old_fd: RawFd,
 }
 
 impl Default for Pager {
@@ -118,8 +114,6 @@ impl Default for Pager {
             default_pager: None,
             pager: env::var_os(DEFAULT_PAGER_ENV),
             envs: Vec::new(),
-            on: true,
-            skip_on_notty: true,
         }
     }
 }
@@ -164,23 +158,17 @@ impl Pager {
     }
 
     /// Launch pager with the specified environment variables
-    pub fn pager_envs(self, envs: impl IntoIterator<Item = impl Into<OsString>>) -> Self {
-        let envs = envs.into_iter().map(|s| s.into()).collect();
+    pub fn pager_envs<I, K, V>(self, envs: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<OsString>,
+        V: Into<OsString>,
+    {
+        let envs = envs
+            .into_iter()
+            .map(|(k, v)| (k.into(), v.into()))
+            .collect();
         Self { envs, ..self }
-    }
-
-    /// Instructs `Pager` to bypass invoking pager if output is not a `tty`
-    #[deprecated(since = "0.14.0", note = "'skip_on_notty' is default now")]
-    pub fn skip_on_notty(self) -> Self {
-        Self {
-            skip_on_notty: true,
-            ..self
-        }
-    }
-
-    /// Gives quick assessment of successful `Pager` setup
-    pub fn is_on(&self) -> bool {
-        self.on
     }
 
     fn pager(&self) -> Option<OsString> {
@@ -198,35 +186,75 @@ impl Pager {
 
     /// Initiates Pager framework and sets up all the necessary environment for sending standard
     /// output to the activated pager.
-    pub fn setup(&mut self) {
-        if self.skip_on_notty && !utils::isatty(libc::STDOUT_FILENO) {
-            self.on = false;
-            return;
-        }
-        if let Some(ref pager) = self.pager() {
-            let (pager_stdin, main_stdout) = utils::pipe();
-            let pid = utils::fork();
-            match pid {
-                -1 => {
-                    // Fork failed
-                    utils::close(pager_stdin);
-                    utils::close(main_stdout);
-                    self.on = false
-                }
-                0 => {
-                    // I am child
-                    utils::dup2(main_stdout, libc::STDOUT_FILENO);
-                    utils::close(pager_stdin);
-                }
-                _ => {
-                    // I am parent
-                    utils::dup2(pager_stdin, libc::STDIN_FILENO);
-                    utils::close(main_stdout);
-                    utils::execvpe(pager, &self.envs);
-                }
+    pub fn setup(self) -> Result<PagerProcess> {
+        let pager = self.pager();
+        if stdout().is_terminal() && pager.is_some() {
+            let pager = pager.unwrap();
+            let pager = pager
+                .to_str()
+                .ok_or(Error::other("pager path is not UTF-8 compliant"))?;
+
+            let args = shell_words::split(pager).map_err(|e| Error::other(e))?;
+            let (pager_cmd, args) = match args.len() {
+                0 => unreachable!(),
+                1 => (&args[0], &[] as &[String]),
+                _ => (&args[0], &args[1..]),
+            };
+
+            let pager = Command::new(pager_cmd)
+                .args(args)
+                .envs(self.envs)
+                .stdin(Stdio::piped())
+                .spawn()?;
+
+            let fd = pager.stdin.as_ref().unwrap().as_raw_fd();
+            let old_fd;
+            unsafe {
+                old_fd = libc::dup(libc::STDOUT_FILENO);
+                assert!(old_fd >= 0);
+                assert_eq!(libc::dup2(fd, libc::STDOUT_FILENO), libc::STDOUT_FILENO);
             }
+
+            Ok(PagerProcess::new(Some(pager), old_fd))
         } else {
-            self.on = false;
+            Ok(PagerProcess::new(None, -1))
+        }
+    }
+}
+
+impl PagerProcess {
+    fn new(pager: Option<Child>, old_fd: RawFd) -> Self {
+        Self { pager, old_fd }
+    }
+
+    /// Gives quick assessment of successful `Pager` setup
+    pub fn is_on(&self) -> bool {
+        self.pager.is_some()
+    }
+}
+
+impl Drop for PagerProcess {
+    fn drop(&mut self) {
+        if let Some(pager) = &mut self.pager {
+            unsafe {
+                // Unfortunately, we cannot drain the internal buffer of stdout(),
+                // so we open /dev/null and flush into there.
+                // If we don't do this, the remaining buffer will be printed to
+                // stdout() after closing the pager.
+                // We'll ignore if we can't open /dev/null.
+                if let Ok(null) = File::open("/dev/null") {
+                    assert_eq!(
+                        libc::dup2(null.as_raw_fd(), libc::STDOUT_FILENO),
+                        libc::STDOUT_FILENO
+                    );
+                    stdout().flush().unwrap();
+                }
+                assert_eq!(
+                    libc::dup2(self.old_fd, libc::STDOUT_FILENO),
+                    libc::STDOUT_FILENO
+                );
+            }
+            pager.wait().unwrap();
         }
     }
 }
