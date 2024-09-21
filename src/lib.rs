@@ -7,7 +7,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     let _pager = Pager::new().setup();
+//!     let _pager = Pager::new().setup().unwrap();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -25,7 +25,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     let _pager = Pager::with_env("MY_PAGER").setup();
+//!     let _pager = Pager::with_env("MY_PAGER").setup().unwrap();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -37,7 +37,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     let _pager = Pager::with_default_pager("pager").setup();
+//!     let _pager = Pager::with_default_pager("pager").setup().unwrap();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -51,7 +51,7 @@
 //! extern crate pager;
 //! use pager::Pager;
 //! fn main() {
-//!     let _pager = Pager::with_pager("pager -r").setup();
+//!     let _pager = Pager::with_pager("pager -r").setup().unwrap();
 //!     // The rest of your program goes here
 //! }
 //! ```
@@ -80,7 +80,7 @@ use std::{
     env,
     ffi::{OsStr, OsString},
     fs::File,
-    io::{stdout, Write},
+    io::{stdout, Error, Result, Write},
     os::fd::{AsRawFd, RawFd},
     process::{Child, Command, Stdio},
 };
@@ -195,16 +195,16 @@ impl Pager {
 
     /// Initiates Pager framework and sets up all the necessary environment for sending standard
     /// output to the activated pager.
-    pub fn setup(self) -> PagerProcess {
+    pub fn setup(self) -> Result<PagerProcess> {
         let isatty = unsafe { libc::isatty(libc::STDOUT_FILENO) != 0 };
         let pager = self.pager();
         if isatty && pager.is_some() {
             let pager = pager.unwrap();
-            let pager = pager.to_str().expect("pager path is not UTF-8 compliant");
+            let pager = pager
+                .to_str()
+                .ok_or(Error::other("pager path is not UTF-8 compliant"))?;
 
-            let args = shell_words::split(pager).unwrap_or_else(|err| {
-                panic!("Can't parse pager arguments: {}", err);
-            });
+            let args = shell_words::split(pager).map_err(|e| Error::other(e))?;
             let (pager_cmd, args) = match args.len() {
                 0 => unreachable!(),
                 1 => (&args[0], &[] as &[String]),
@@ -215,8 +215,7 @@ impl Pager {
                 .args(args)
                 .envs(self.envs)
                 .stdin(Stdio::piped())
-                .spawn()
-                .unwrap();
+                .spawn()?;
 
             let fd = pager.stdin.as_ref().unwrap().as_raw_fd();
             let old_fd;
@@ -226,9 +225,9 @@ impl Pager {
                 assert_eq!(libc::dup2(fd, libc::STDOUT_FILENO), libc::STDOUT_FILENO);
             }
 
-            PagerProcess::new(Some(pager), old_fd)
+            Ok(PagerProcess::new(Some(pager), old_fd))
         } else {
-            PagerProcess::new(None, -1)
+            Ok(PagerProcess::new(None, -1))
         }
     }
 }
