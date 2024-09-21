@@ -80,7 +80,7 @@ use std::{
     env,
     ffi::{OsStr, OsString},
     fs::File,
-    io::{stdout, Error, Result, Write},
+    io::{stdout, Error, IsTerminal, Result, Write},
     os::fd::{AsRawFd, RawFd},
     process::{Child, Command, Stdio},
 };
@@ -187,9 +187,8 @@ impl Pager {
     /// Initiates Pager framework and sets up all the necessary environment for sending standard
     /// output to the activated pager.
     pub fn setup(self) -> Result<PagerProcess> {
-        let isatty = unsafe { libc::isatty(libc::STDOUT_FILENO) != 0 };
         let pager = self.pager();
-        if isatty && pager.is_some() {
+        if stdout().is_terminal() && pager.is_some() {
             let pager = pager.unwrap();
             let pager = pager
                 .to_str()
