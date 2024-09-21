@@ -158,24 +158,15 @@ impl Pager {
     }
 
     /// Launch pager with the specified environment variables
-    pub fn pager_envs(self, envs: impl IntoIterator<Item = impl Into<OsString>>) -> Self {
-        let envs: Vec<(OsString, OsString)> = envs
+    pub fn pager_envs<I, K, V>(self, envs: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+        K: Into<OsString>,
+        V: Into<OsString>,
+    {
+        let envs = envs
             .into_iter()
-            .map(|s| {
-                let s: OsString = s.into();
-                let pair = s
-                    .to_str()
-                    .expect("Environment variable is not UTF-8 compliant");
-                let mut split = pair.split('=');
-                let (Some(key), Some(value), None) = (split.next(), split.next(), split.next())
-                else {
-                    panic!(
-                        "Invalid key-value pair for an environment variable: {}",
-                        pair
-                    );
-                };
-                (key.into(), value.into())
-            })
+            .map(|(k, v)| (k.into(), v.into()))
             .collect();
         Self { envs, ..self }
     }
