@@ -236,23 +236,29 @@ mod tests {
         }
 
         fn set<S: AsRef<OsStr>>(&self, value: S) {
-            match self {
-                Self::Reinstate(env, _) | Self::Remove(env) => env::set_var(env, value),
+            unsafe {
+                match self {
+                    Self::Reinstate(env, _) | Self::Remove(env) => env::set_var(env, value),
+                }
             }
         }
 
         fn remove(&self) {
-            match self {
-                Self::Reinstate(env, _) | Self::Remove(env) => env::remove_var(env),
+            unsafe {
+                match self {
+                    Self::Reinstate(env, _) | Self::Remove(env) => env::remove_var(env),
+                }
             }
         }
     }
 
     impl Drop for PagerEnv {
         fn drop(&mut self) {
-            match self {
-                Self::Reinstate(env, value) => env::set_var(env, value),
-                Self::Remove(env) => env::remove_var(env),
+            unsafe {
+                match self {
+                    Self::Reinstate(env, value) => env::set_var(env, value),
+                    Self::Remove(env) => env::remove_var(env),
+                }
             }
         }
     }
