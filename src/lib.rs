@@ -4,8 +4,7 @@
 //! # Quick Start
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
+//! use pager2::Pager;
 //! fn main() {
 //!     Pager::new().setup();
 //!     // The rest of your program goes here
@@ -22,8 +21,7 @@
 //! environment variable used for finding pager executable.
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
+//! use pager2::Pager;
 //! fn main() {
 //!     Pager::with_env("MY_PAGER").setup();
 //!     // The rest of your program goes here
@@ -34,8 +32,7 @@
 //! `more`. PAGER environment variable (if set) will still have precedence.
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
+//! use pager2::Pager;
 //! fn main() {
 //!     Pager::with_default_pager("pager").setup();
 //!     // The rest of your program goes here
@@ -48,8 +45,7 @@
 //! configuration just for your application.
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
+//! use pager2::Pager;
 //! fn main() {
 //!     Pager::with_pager("pager -r").setup();
 //!     // The rest of your program goes here
@@ -64,8 +60,7 @@
 //! If this case you may use `.skip_on_notty()` to get the desirable effect.
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
+//! use pager2::Pager;
 //! fn main() {
 //!     Pager::new().skip_on_notty().setup();
 //!     // The rest of your program goes here
@@ -76,7 +71,7 @@
 //! will skip initialization. The host application will continue as normal. `Pager::is_on()` will
 //! reflect the fact that no Pager is active.
 
-#![doc(html_root_url = "https://docs.rs/pager/0.16.1")]
+#![doc(html_root_url = "https://docs.rs/pager/0.1.0")]
 #![cfg_attr(feature = "pedantic", warn(clippy::pedantic))]
 #![warn(clippy::use_self)]
 #![warn(deprecated_in_future)]
@@ -109,7 +104,7 @@ pub struct Pager {
     pager: Option<OsString>,
     envs: Vec<OsString>,
     on: bool,
-    skip_on_notty: bool,
+    pub skip_on_notty: bool,
 }
 
 impl Default for Pager {
