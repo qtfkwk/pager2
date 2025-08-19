@@ -16,6 +16,6 @@
         pager.setup();
         ```
 
-* 0.1.1 (2025-08-19)
-    * Fix readme
+* 0.1.1 (2025-08-19): Fix readme
+* 0.1.2 (2025-08-19): Remove docsrs links; fix changelog
 
