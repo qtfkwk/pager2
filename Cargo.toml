@@ -1,22 +1,18 @@
 [package]
-name = "pager"
-version = "0.16.1"                                               # remember to update html_root_url
-authors = ["Cyril Plisko <cyril.plisko@mountall.com>"]
+name = "pager2"
+version = "0.1.0"
+authors = ["qtfkwk <qtfkwk+pager2@gmail.com>"]
 description = "Helps pipe your output through an external pager"
-documentation = "https://docs.rs/pager"
+documentation = "https://docs.rs/pager2"
 keywords = ["pager", "less", "more"]
 license = "Apache-2.0/MIT"
 readme = "README.md"
-repository = "https://gitlab.com/imp/pager-rs.git"
+repository = "https://github.com/qtfkwk/pager2.git"
 edition = "2018"
 categories = ["command-line-interface", "text-processing"]
 
-[badges]
-travis-ci = { repository = "imp/pager-rs" }
-gitlab = { repository = "imp/pager-rs" }
-
 [dependencies]
-errno = "0.2"
+errno = "0.3"
 libc = "0.2"
 
 [features]

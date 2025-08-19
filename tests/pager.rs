@@ -1,8 +1,4 @@
-extern crate pager;
-
-use std::env;
-
-use pager::Pager;
+use {pager2::Pager, std::env};
 
 #[test]
 fn nopager() {

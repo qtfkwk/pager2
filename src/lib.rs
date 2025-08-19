@@ -4,12 +4,9 @@
 //! # Quick Start
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
-//! fn main() {
-//!     Pager::new().setup();
-//!     // The rest of your program goes here
-//! }
+//! use pager2::Pager;
+//!
+//! Pager::new().setup();
 //! ```
 //!
 //! Under the hood this forks the current process, connects child' stdout
@@ -22,24 +19,18 @@
 //! environment variable used for finding pager executable.
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
-//! fn main() {
-//!     Pager::with_env("MY_PAGER").setup();
-//!     // The rest of your program goes here
-//! }
+//! use pager2::Pager;
+//!
+//! Pager::with_env("MY_PAGER").setup();
 //! ```
 //!
 //! Also you can set alternative default (fallback) pager to be used instead of
 //! `more`. PAGER environment variable (if set) will still have precedence.
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
-//! fn main() {
-//!     Pager::with_default_pager("pager").setup();
-//!     // The rest of your program goes here
-//! }
+//! use pager2::Pager;
+//!
+//! Pager::with_default_pager("pager").setup();
 //! ```
 //! Alternatively you can specify directly the desired pager command, exactly
 //! as it would appear in PAGER environment variable. This is useful if you
@@ -48,12 +39,9 @@
 //! configuration just for your application.
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
-//! fn main() {
-//!     Pager::with_pager("pager -r").setup();
-//!     // The rest of your program goes here
-//! }
+//! use pager2::Pager;
+//!
+//! Pager::with_pager("pager -r").setup();
 //! ```
 //!
 //! If no suitable pager found `setup()` does nothing and your executable keeps
@@ -64,19 +52,16 @@
 //! If this case you may use `.skip_on_notty()` to get the desirable effect.
 //!
 //! ```rust
-//! extern crate pager;
-//! use pager::Pager;
-//! fn main() {
-//!     Pager::new().skip_on_notty().setup();
-//!     // The rest of your program goes here
-//! }
+//! use pager2::Pager;
+//!
+//! Pager::new().skip_on_notty().setup();
 //! ```
 //!
 //! If you need to disable pager altogether set environment variable `NOPAGER` and `Pager::setup()`
 //! will skip initialization. The host application will continue as normal. `Pager::is_on()` will
 //! reflect the fact that no Pager is active.
 
-#![doc(html_root_url = "https://docs.rs/pager/0.16.1")]
+#![doc(html_root_url = "https://docs.rs/pager/0.1.0")]
 #![cfg_attr(feature = "pedantic", warn(clippy::pedantic))]
 #![warn(clippy::use_self)]
 #![warn(deprecated_in_future)]
@@ -109,7 +94,7 @@ pub struct Pager {
     pager: Option<OsString>,
     envs: Vec<OsString>,
     on: bool,
-    skip_on_notty: bool,
+    pub skip_on_notty: bool,
 }
 
 impl Default for Pager {
