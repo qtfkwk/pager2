@@ -1,74 +1,10 @@
-//! Does all the magic to have you potentially long output piped through the
-//! external pager. Similar to what git does for its output.
-//!
-//! # Quick Start
-//!
-//! ```rust
-//! use pager2::Pager;
-//!
-//! Pager::new().setup();
-//! ```
-//!
-//! Under the hood this forks the current process, connects child' stdout
-//! to parent's stdin, and then replaces the parent with the pager of choice
-//! (environment variable PAGER). The child just continues as normal. If PAGER
-//! environment variable is not present `Pager` probes current PATH for `more`.
-//! If found it is used as a default pager.
-//!
-//! You can control pager to a limited degree. For example you can change the
-//! environment variable used for finding pager executable.
-//!
-//! ```rust
-//! use pager2::Pager;
-//!
-//! Pager::with_env("MY_PAGER").setup();
-//! ```
-//!
-//! Also you can set alternative default (fallback) pager to be used instead of
-//! `more`. PAGER environment variable (if set) will still have precedence.
-//!
-//! ```rust
-//! use pager2::Pager;
-//!
-//! Pager::with_default_pager("pager").setup();
-//! ```
-//! Alternatively you can specify directly the desired pager command, exactly
-//! as it would appear in PAGER environment variable. This is useful if you
-//! need some specific pager and/or flags (like "less -r") and would like to
-//! avoid forcing your consumers into modifying their existing PAGER
-//! configuration just for your application.
-//!
-//! ```rust
-//! use pager2::Pager;
-//!
-//! Pager::with_pager("pager -r").setup();
-//! ```
-//!
-//! If no suitable pager found `setup()` does nothing and your executable keeps
-//! running as usual. `Pager` cleans after itself and doesn't leak resources in
-//! case of setup failure.
-//!
-//! Sometimes you may want to bypass pager if the output of you executable is not a `tty`.
-//! If this case you may use `.skip_on_notty()` to get the desirable effect.
-//!
-//! ```rust
-//! use pager2::Pager;
-//!
-//! Pager::new().skip_on_notty().setup();
-//! ```
-//!
-//! If you need to disable pager altogether set environment variable `NOPAGER` and `Pager::setup()`
-//! will skip initialization. The host application will continue as normal. `Pager::is_on()` will
-//! reflect the fact that no Pager is active.
-
+#![doc = include_str!("../README.md")]
 #![cfg_attr(feature = "pedantic", warn(clippy::pedantic))]
 #![warn(clippy::use_self)]
 #![warn(deprecated_in_future)]
 #![warn(future_incompatible)]
 #![warn(unreachable_pub)]
 #![warn(missing_debug_implementations)]
-#![warn(rust_2018_compatibility)]
-#![warn(rust_2018_idioms)]
 #![warn(unused)]
 #![deny(warnings)]
 
@@ -89,8 +25,8 @@ const DEFAULT_PAGER: &str = "more";
 /// Keeps track of the current pager state
 #[derive(Debug)]
 pub struct Pager {
-    default_pager: Option<OsString>,
-    pager: Option<OsString>,
+    default: Option<OsString>,
+    env: Option<OsString>,
     envs: Vec<OsString>,
     on: bool,
     pub skip_on_notty: bool,
@@ -99,8 +35,8 @@ pub struct Pager {
 impl Default for Pager {
     fn default() -> Self {
         Self {
-            default_pager: None,
-            pager: env::var_os(DEFAULT_PAGER_ENV),
+            default: None,
+            env: env::var_os(DEFAULT_PAGER_ENV),
             envs: Vec::new(),
             on: true,
             skip_on_notty: true,
@@ -110,21 +46,18 @@ impl Default for Pager {
 
 impl Pager {
     /// Creates new instance of `Pager` with default settings
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
     /// Creates new instance of pager using `env` environment variable instead of PAGER
+    #[must_use]
     pub fn with_env(env: &str) -> Self {
         Self {
-            pager: env::var_os(env),
+            env: env::var_os(env),
             ..Self::default()
         }
-    }
-
-    #[deprecated(since = "0.12.0", note = "use with_env() instead")]
-    pub fn env(env: &str) -> Self {
-        Self::with_env(env)
     }
 
     /// Creates a new `Pager` instance with the specified default fallback
@@ -134,35 +67,29 @@ impl Pager {
     {
         let default_pager = Some(pager.into());
         Self {
-            default_pager,
+            default: default_pager,
             ..Self::default()
         }
     }
 
     /// Creates a new `Pager` instance directly specifying the desired pager
+    #[must_use]
     pub fn with_pager(pager: &str) -> Self {
         Self {
-            pager: Some(pager.into()),
+            env: Some(pager.into()),
             ..Self::default()
         }
     }
 
     /// Launch pager with the specified environment variables
+    #[must_use]
     pub fn pager_envs(self, envs: impl IntoIterator<Item = impl Into<OsString>>) -> Self {
-        let envs = envs.into_iter().map(|s| s.into()).collect();
+        let envs = envs.into_iter().map(std::convert::Into::into).collect();
         Self { envs, ..self }
     }
 
-    /// Instructs `Pager` to bypass invoking pager if output is not a `tty`
-    #[deprecated(since = "0.14.0", note = "'skip_on_notty' is default now")]
-    pub fn skip_on_notty(self) -> Self {
-        Self {
-            skip_on_notty: true,
-            ..self
-        }
-    }
-
     /// Gives quick assessment of successful `Pager` setup
+    #[must_use]
     pub fn is_on(&self) -> bool {
         self.on
     }
@@ -173,9 +100,9 @@ impl Pager {
         if env::var_os(NOPAGER_ENV).is_some() {
             None
         } else {
-            self.pager
+            self.env
                 .clone()
-                .or_else(|| self.default_pager.clone())
+                .or_else(|| self.default.clone())
                 .or_else(fallback_pager)
         }
     }
@@ -195,7 +122,7 @@ impl Pager {
                     // Fork failed
                     utils::close(pager_stdin);
                     utils::close(main_stdout);
-                    self.on = false
+                    self.on = false;
                 }
                 0 => {
                     // I am child

@@ -1,6 +1,6 @@
 [package]
 name = "pager2"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["qtfkwk <qtfkwk+pager2@gmail.com>"]
 description = "Helps pipe your output through an external pager"
 keywords = ["pager", "less", "more"]
@@ -16,3 +16,7 @@ libc = "0.2"
 
 [features]
 pedantic = []
+
+[dev-dependencies]
+clap = { version = "4.5.45", features = ["derive"] }
+which = "8.0.0"
