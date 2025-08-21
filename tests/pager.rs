@@ -23,5 +23,5 @@ fn skip_on_notty() {
 #[test]
 fn no_skip() {
     let pager = Pager::new().no_skip();
-    assert!(!pager.skip_on_notty);
+    assert!(!pager.skip_on_notty());
 }

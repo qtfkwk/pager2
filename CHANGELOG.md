@@ -25,4 +25,4 @@
     ```
 
 * 0.4.1 (2025-08-21): Add doc for the `.no_skip()` method
-
+* 0.5.0 (2025-08-21): Add the `.skip_on_notty()` method and make the `.skip_on_notty` field private

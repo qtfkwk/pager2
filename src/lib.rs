@@ -29,7 +29,7 @@ pub struct Pager {
     env: Option<OsString>,
     envs: Vec<OsString>,
     on: bool,
-    pub skip_on_notty: bool,
+    skip_on_notty: bool,
 }
 
 impl Default for Pager {
@@ -112,6 +112,12 @@ impl Pager {
     pub fn no_skip(mut self) -> Pager {
         self.skip_on_notty = false;
         self
+    }
+
+    /// Return whether this pager will be skipped if stdout is not a TTY
+    #[must_use]
+    pub fn skip_on_notty(&self) -> bool {
+        self.skip_on_notty
     }
 
     /// Initiates Pager framework and sets up all the necessary environment for sending standard
