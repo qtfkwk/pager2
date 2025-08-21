@@ -107,6 +107,8 @@ impl Pager {
         }
     }
 
+    /// Convert this pager to one that will not be skipped if stdout is not a TTY
+    #[must_use]
     pub fn no_skip(mut self) -> Pager {
         self.skip_on_notty = false;
         self

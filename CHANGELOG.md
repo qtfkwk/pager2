@@ -24,3 +24,5 @@
     Pager::with_pager("bat -pl md --color always").no_skip().setup();
     ```
 
+* 0.4.1 (2025-08-21): Add doc for the `.no_skip()` method
+
