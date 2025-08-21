@@ -107,6 +107,11 @@ impl Pager {
         }
     }
 
+    pub fn no_skip(mut self) -> Pager {
+        self.skip_on_notty = false;
+        self
+    }
+
     /// Initiates Pager framework and sets up all the necessary environment for sending standard
     /// output to the activated pager.
     pub fn setup(&mut self) {

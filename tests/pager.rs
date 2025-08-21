@@ -19,3 +19,9 @@ fn skip_on_notty() {
     pager.setup();
     assert!(!pager.is_on());
 }
+
+#[test]
+fn no_skip() {
+    let pager = Pager::new().no_skip();
+    assert!(!pager.skip_on_notty);
+}

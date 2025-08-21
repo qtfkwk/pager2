@@ -129,13 +129,11 @@ fn main() {
         if always {
             // Force color
             bat.push_str(" --color always");
+
+            Pager::with_pager(&bat).no_skip().setup();
+        } else {
+            Pager::with_pager(&bat).setup();
         }
-        let mut pager = Pager::with_pager(&bat);
-        if always {
-            // Don't skip if stdout is not a TTY but color set to always
-            pager.skip_on_notty = false;
-        }
-        pager.setup();
     }
 
     // The rest of your program goes here
