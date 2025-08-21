@@ -27,7 +27,7 @@ fn main() {
 Under the hood this forks the current process, connects child's stdout to parent's stdin, and then
 replaces the parent with the pager of choice (environment variable `PAGER`).
 The child just continues as normal.
-If `PAGER` environment variable is not present `Pager` probes current PATH for `more`.
+If `PAGER` environment variable is not present [`Pager`] probes current PATH for `more`.
 If found it is used as a default pager.
 
 ## Custom environment variable
@@ -60,15 +60,17 @@ fn main() {
 }
 ```
 
-If no suitable pager found `setup()` does nothing and your executable keeps running as usual.
-`Pager` cleans after itself and doesn't leak resources in case of setup failure.
+If no suitable pager is found, [`Pager::setup()`] does nothing and your executable keeps running as
+usual.
+[`Pager`] cleans after itself and doesn't leak resources in case of setup failure.
 
 ## Custom pager command
 
 Alternatively you can specify directly the desired pager command, exactly as it would appear in
 `PAGER` environment variable.
-This is useful if you need some specific pager and/or flags (like "less -r") and would like to avoid
-forcing your consumers into modifying their existing PAGER configuration just for your application.
+This is useful if you need some specific pager and/or flags (like `less -r`) and would like to avoid
+forcing your consumers into modifying their existing `PAGER` configuration just for your
+application.
 
 ```rust
 # #[allow(needless_doctest_main)]
@@ -82,10 +84,10 @@ fn main() {
 
 ## Disabling the pager
 
-If you need to disable pager altogether set environment variable `NOPAGER` and `Pager::setup()` will
-skip initialization.
+If you need to disable pager altogether set environment variable `NOPAGER` and [`Pager::setup()`]
+will skip initialization.
 The host application will continue as normal.
-`Pager::is_on()` will reflect the fact that no `Pager` is active.
+[`Pager::is_on()`] will reflect the fact that no [`Pager`] is active.
 
 ## Forcing the pager
 
@@ -105,12 +107,11 @@ use {
 struct Options {
     /// Color
     #[arg(long, default_value = "auto")]
-    pub color: Color,
+    color: Color,
 }
 
-#[derive(Clone, Default, PartialEq, ValueEnum)]
-pub enum Color {
-    #[default]
+#[derive(Clone, PartialEq, ValueEnum)]
+enum Color {
     Auto,
     Always,
     Never,
@@ -120,9 +121,8 @@ fn main() {
     let options = Options::parse();
     if which("bat").is_ok() {
         let mut bat = String::from("bat -p");
-        let is_tty = std::io::stdout().is_terminal();
         let always = options.color == Color::Always;
-        if (options.color == Color::Auto && is_tty) || always {
+        if (options.color == Color::Auto && std::io::stdout().is_terminal()) || always {
             // Syntax highlight JSON output if stdout is a TTY or color set to always
             bat.push_str(" -l json");
         }

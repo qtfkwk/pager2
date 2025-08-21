@@ -45,13 +45,13 @@ impl Default for Pager {
 }
 
 impl Pager {
-    /// Creates new instance of `Pager` with default settings
+    /// Creates new instance of [`Pager`] with default settings
     #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
-    /// Creates new instance of pager using `env` environment variable instead of PAGER
+    /// Creates new instance of [`Pager`] using `env` environment variable instead of `PAGER`
     #[must_use]
     pub fn with_env(env: &str) -> Self {
         Self {
@@ -60,7 +60,7 @@ impl Pager {
         }
     }
 
-    /// Creates a new `Pager` instance with the specified default fallback
+    /// Creates a new [`Pager`] instance with the specified default fallback
     pub fn with_default_pager<S>(pager: S) -> Self
     where
         S: Into<OsString>,
@@ -72,7 +72,7 @@ impl Pager {
         }
     }
 
-    /// Creates a new `Pager` instance directly specifying the desired pager
+    /// Creates a new [`Pager`] instance directly specifying the desired pager
     #[must_use]
     pub fn with_pager(pager: &str) -> Self {
         Self {
@@ -88,7 +88,7 @@ impl Pager {
         Self { envs, ..self }
     }
 
-    /// Gives quick assessment of successful `Pager` setup
+    /// Gives quick assessment of successful [`Pager`] setup
     #[must_use]
     pub fn is_on(&self) -> bool {
         self.on
@@ -120,8 +120,8 @@ impl Pager {
         self.skip_on_notty
     }
 
-    /// Initiates Pager framework and sets up all the necessary environment for sending standard
-    /// output to the activated pager.
+    /// Initiates [`Pager`] framework and sets up all the necessary environment for sending standard
+    /// output to the activated pager
     pub fn setup(&mut self) {
         if self.skip_on_notty && !utils::isatty(libc::STDOUT_FILENO) {
             self.on = false;
