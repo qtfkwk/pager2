@@ -13,8 +13,8 @@
         pager.setup();
         ```
 
-* 0.1.1 (2025-08-19): Fix readme
-* 0.1.2 (2025-08-19): Remove docsrs links; fix changelog
+    * 0.1.1 (2025-08-19): Fix readme
+    * 0.1.2 (2025-08-19): Remove docsrs links; fix changelog
 * 0.2.0 (2025-08-19): Update to `2024` edition
 * 0.3.0 (2025-08-20): Remove deprecated and 2018 edition references; add better example to readme; include readme as the crate doc; fix changelog, readme; apply pedantic clippy fixes
 * 0.4.0 (2025-08-21): Add `.no_skip()` method to simplify the usage to:
@@ -24,7 +24,8 @@
     Pager::with_pager("bat -pl md --color always").no_skip().setup();
     ```
 
-* 0.4.1 (2025-08-21): Add doc for the `.no_skip()` method
+    * 0.4.1 (2025-08-21): Add doc for the `.no_skip()` method
 * 0.5.0 (2025-08-21): Add the `.skip_on_notty()` method and make the `.skip_on_notty` field private
-* 0.5.1 (2025-08-21): Scrub doc
+    * 0.5.1 (2025-08-21): Scrub doc
+* 0.6.0 (2025-09-02): Updated dependencies; add makefile; fix changelog
 
