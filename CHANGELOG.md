@@ -28,4 +28,5 @@
 * 0.5.0 (2025-08-21): Add the `.skip_on_notty()` method and make the `.skip_on_notty` field private
     * 0.5.1 (2025-08-21): Scrub doc
 * 0.6.0 (2025-09-02): Updated dependencies; add makefile; fix changelog
+    * 0.6.1 (2025-10-27): Updated dependencies
 
