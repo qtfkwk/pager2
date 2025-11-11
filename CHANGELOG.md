@@ -29,4 +29,5 @@
     * 0.5.1 (2025-08-21): Scrub doc
 * 0.6.0 (2025-09-02): Updated dependencies; add makefile; fix changelog
     * 0.6.1 (2025-10-27): Updated dependencies
+    * 0.6.2 (2025-11-11): Updated dependencies
 
