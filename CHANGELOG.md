@@ -30,4 +30,5 @@
 * 0.6.0 (2025-09-02): Updated dependencies; add makefile; fix changelog
     * 0.6.1 (2025-10-27): Updated dependencies
     * 0.6.2 (2025-11-11): Updated dependencies
+    * 0.6.3 (2025-11-14): Updated dependencies (none); add `clippy::pedantic` to `cargo clippy` command in the `clippy` target in the makefile
 
